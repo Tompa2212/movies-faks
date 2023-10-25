@@ -19,7 +19,8 @@ export const users = pgTable('users', {
   firstName: varchar('first_name', { length: 64 }).notNull(),
   lastName: varchar('last_name', { length: 64 }),
   password: varchar('password', { length: 255 }).notNull(),
-  email: varchar('email', { length: 64 }).notNull().unique()
+  email: varchar('email', { length: 64 }).notNull().unique(),
+  username: varchar('username', { length: 32 })
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -54,7 +55,7 @@ export const movies = pgTable(
     title: varchar('title', { length: 255 }).notNull(),
     plot: text('plot'),
     fullPlot: text('full_plot'),
-    poster: varchar('poster', { length: 256 }),
+    poster: varchar('poster'),
     runtime: integer('runtime').notNull(),
     released: timestamp('released', { withTimezone: true, mode: 'date' }),
     type: showTypeEnum('type').notNull(),

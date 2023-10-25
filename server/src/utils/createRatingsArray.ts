@@ -20,6 +20,3 @@ export function createRatingsArray(averageRating: number, totalVotes: number) {
 
   return ratings;
 }
-
-const r = createRatingsArray(7.5, 870);
-console.log(r.reduce((total, curr) => total + curr, 0) / r.length);

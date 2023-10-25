@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
-import { query } from '../utils/query-functions';
 import { pgRepository } from './base-repository/pg.repository';
 import Movie from '../entities/Movie';
+import { pool } from '../db';
 
-export default function movieRepository(pool: Pool) {
+function makeMovieRepository(pool: Pool) {
   const base = pgRepository<Movie>({
     pool,
     table: 'movies',
@@ -23,9 +23,10 @@ export default function movieRepository(pool: Pool) {
   });
 
   async function findBySearch(search: string) {
-    return query<Movie>(`SELECT * FROM movies WHERE title LIKE $1 || '%'`, [
-      search
-    ]);
+    return pool.query<Movie>(
+      `SELECT ${base.allColumns} FROM movies WHERE title LIKE $1 || '%'`,
+      [search]
+    );
   }
 
   return {
@@ -33,3 +34,5 @@ export default function movieRepository(pool: Pool) {
     findBySearch
   };
 }
+
+export const movieRepository = makeMovieRepository(pool);
