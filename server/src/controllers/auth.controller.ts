@@ -1,15 +1,15 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import BadRequestError from '../errors/bad-request';
 import { StatusCodes } from 'http-status-codes';
 import { authService } from '../services/auth.service';
 import UnauthenticatedError from '../errors/unauthenticated';
 
-async function login(req: Request, res: Response, next: NextFunction) {
+async function login(req: Request, res: Response) {
   const { email, password } = req.body;
 
   if (!email || !password) {
     throw new BadRequestError({
-      message: 'Please provide email and password'
+      description: 'Please provide email and password'
     });
   }
 
@@ -25,7 +25,7 @@ async function register(req: Request, res: Response) {
 
   if (!email || !password || !firstName) {
     throw new BadRequestError({
-      message: 'Please provide email, password and first name'
+      description: 'Please provide email, password and first name'
     });
   }
 

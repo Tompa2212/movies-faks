@@ -1,11 +1,11 @@
-import { Pool } from 'pg';
 import { pgRepository } from './base-repository/pg.repository';
-import User from '../entities/User';
-import { pool } from '../db';
+import { db, pool } from '../db';
+import { NewUser, User } from '../types/User';
+import { usersTable } from '../db/schema';
+import { eq, getTableColumns, like, sql } from 'drizzle-orm';
 
-function makeUserRepository(pool: Pool) {
+function makeUserRepository() {
   const base = pgRepository<User>({
-    pool,
     table: 'users',
     primaryKey: 'id',
     mapping: {
@@ -18,20 +18,62 @@ function makeUserRepository(pool: Pool) {
     }
   });
 
-  async function findByEmail(email: string) {
-    const resp = await base.find({ email });
+  const { password, ...safeTableColumns } = getTableColumns(usersTable);
 
-    if (!resp.length) {
-      return null;
-    }
+  const findOneById = async (id: number) => {
+    const user = await pool.query<Omit<User, 'password'>>(
+      `SELECT ${base.selectOmit(['password'])} FROM ${
+        base.table
+      } WHERE id = $1`,
+      [id]
+    );
 
-    return resp[0];
-  }
+    return user.rows[0] ?? null;
+  };
+
+  const create = async (data: NewUser) => {
+    const user = await db
+      .insert(usersTable)
+      .values(data)
+      .returning(safeTableColumns);
+
+    return user[0];
+  };
+
+  const deleteUser = async (id: number) => {
+    const user = await db
+      .delete(usersTable)
+      .where(eq(usersTable.id, id))
+      .returning(safeTableColumns);
+
+    return user[0] ?? null;
+  };
+
+  const updateUser = async (id: number, data: Partial<User>) => {
+    const user = await db
+      .update(usersTable)
+      .set(data)
+      .where(eq(usersTable.id, id))
+      .returning(safeTableColumns);
+
+    return user[0] ?? null;
+  };
+
+  const findManyByUsername = async (username: string) => {
+    return db
+      .select(safeTableColumns)
+      .from(usersTable)
+      .where(like(usersTable.username, sql`${username}%`));
+  };
 
   return {
     ...base,
-    findByEmail
+    findOneById,
+    create,
+    deleteUser,
+    updateUser,
+    findManyByUsername
   };
 }
 
-export const userRepository = makeUserRepository(pool);
+export const userRepository = makeUserRepository();

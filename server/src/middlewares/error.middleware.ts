@@ -12,13 +12,14 @@ const errorHandlerMiddleware = (
 ) => {
   let error = {
     statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-    errors: [{ message: 'Something went wrong' }]
+    description: err.message ?? 'Something went wrong',
+    errors: [] as any
   };
 
   if (err instanceof DatabaseError) {
     if (err.code === '23505') {
       error = new BadRequestError({
-        message: err.detail?.replace(/[\(\)]/g, '')
+        description: err.detail?.replace(/[\(\)]/g, '')
       });
     }
   }
@@ -27,7 +28,9 @@ const errorHandlerMiddleware = (
     error = err;
   }
 
-  return res.status(error.statusCode).json({ errors: error.errors });
+  return res
+    .status(error.statusCode)
+    .json({ description: error.description, errors: error.errors });
 };
 
 export default errorHandlerMiddleware;

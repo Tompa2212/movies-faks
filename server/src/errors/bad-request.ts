@@ -3,20 +3,29 @@ import CustomError from './custom-error';
 
 export default class BadRequestError extends CustomError {
   private readonly _statusCode = StatusCodes.BAD_REQUEST;
-  private readonly _context: { [key: string]: any };
+  private readonly _errors: { message: string }[];
+  private readonly _description: string;
 
-  constructor(params?: { message?: string; context?: { [key: string]: any } }) {
-    const { message, context } = params ?? {};
+  constructor(params?: {
+    description?: string;
+    errors?: { message: string }[];
+  }) {
+    const { description = 'Invalid request', errors } = params ?? {};
+    super(description);
 
-    super(message ?? 'Bad request');
-    this._context = context ?? {};
+    this._description = description;
+    this._errors = errors ?? [];
   }
 
   get errors() {
-    return [{ message: this.message, context: this._context }];
+    return this._errors;
   }
 
   get statusCode() {
     return this._statusCode;
+  }
+
+  get description() {
+    return this._description;
   }
 }

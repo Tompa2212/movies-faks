@@ -24,7 +24,7 @@ export interface FindOptions<T, C> {
 
 interface Reader<T, C> {
   find(value: Partial<T>, options?: FindOptions<T, C>): Promise<T[]>;
-  findOne(id: ID | Partial<T>, options?: FindOptions<T, C>): Promise<T>;
+  findOne(id: ID | Partial<T>, options?: FindOptions<T, C>): Promise<T | null>;
   exist(id: ID | Partial<T>, tx?: PoolClient): Promise<boolean>;
 }
 

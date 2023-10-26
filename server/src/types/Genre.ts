@@ -1,3 +1,3 @@
-import { genres } from '../db/schema';
+import { genresTable } from '../db/schema';
 
-export type Genre = typeof genres.$inferSelect;
+export type Genre = typeof genresTable.$inferSelect;

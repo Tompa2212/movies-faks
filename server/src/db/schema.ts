@@ -14,7 +14,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 // Users
-export const users = pgTable('users', {
+export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),
   firstName: varchar('first_name', { length: 64 }).notNull(),
   lastName: varchar('last_name', { length: 64 }),
@@ -23,32 +23,32 @@ export const users = pgTable('users', {
   username: varchar('username', { length: 32 })
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  watchlistUsers: many(watchlistUsers),
-  ratings: many(ratings),
-  notifications: many(notifications),
-  sentWatchlistInvitations: many(watchlistInvitations, {
+export const usersRelations = relations(usersTable, ({ many }) => ({
+  watchlistUsers: many(watchlistUsersTable),
+  ratings: many(ratingsTable),
+  notifications: many(notificationsTable),
+  sentWatchlistInvitations: many(watchlistInvitationsTable, {
     relationName: 'sender'
   }),
-  recievedWatchlistInvitations: many(watchlistInvitations, {
+  receivedWatchlistInvitations: many(watchlistInvitationsTable, {
     relationName: 'recipient'
   })
 }));
 
 // Genres
-export const genres = pgTable('genres', {
+export const genresTable = pgTable('genres', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 64 })
 });
 
-export const genresRelations = relations(genres, ({ many }) => ({
-  moviesGenres: many(movieGenres)
+export const genresRelations = relations(genresTable, ({ many }) => ({
+  moviesGenres: many(movieGenresTable)
 }));
 
 // Movies
 export const showTypeEnum = pgEnum('type', ['movie', 'series']);
 
-export const movies = pgTable(
+export const moviesTable = pgTable(
   'movies',
   {
     id: serial('id').primaryKey(),
@@ -69,48 +69,51 @@ export const movies = pgTable(
   }
 );
 
-export const moviesRelations = relations(movies, ({ many }) => ({
-  movieGenres: many(movieGenres),
-  watchlistMovies: many(watchlistMovies),
-  ratings: many(ratings)
+export const moviesRelations = relations(moviesTable, ({ many }) => ({
+  movieGenres: many(movieGenresTable),
+  watchlistMovies: many(watchlistMoviesTable),
+  ratings: many(ratingsTable)
 }));
 
 // Movie Genres
-export const movieGenres = pgTable(
+export const movieGenresTable = pgTable(
   'movie_genres',
   {
     movieId: integer('movie_id')
       .notNull()
-      .references(() => movies.id),
+      .references(() => moviesTable.id),
     genreId: integer('genre_id')
       .notNull()
-      .references(() => genres.id)
+      .references(() => genresTable.id)
   },
   table => ({
     pk: primaryKey(table.movieId, table.genreId)
   })
 );
 
-export const moviesToGenresRelations = relations(movieGenres, ({ one }) => ({
-  genre: one(genres, {
-    fields: [movieGenres.genreId],
-    references: [genres.id]
-  }),
-  movie: one(movies, {
-    fields: [movieGenres.movieId],
-    references: [movies.id]
+export const moviesToGenresRelations = relations(
+  movieGenresTable,
+  ({ one }) => ({
+    genre: one(genresTable, {
+      fields: [movieGenresTable.genreId],
+      references: [genresTable.id]
+    }),
+    movie: one(moviesTable, {
+      fields: [movieGenresTable.movieId],
+      references: [moviesTable.id]
+    })
   })
-}));
+);
 
-export const ratings = pgTable(
+export const ratingsTable = pgTable(
   'ratings',
   {
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => usersTable.id),
     movieId: integer('movie_id')
       .notNull()
-      .references(() => movies.id),
+      .references(() => moviesTable.id),
     rating: integer('rating').notNull(),
     timestamp: timestamp('timestamp')
   },
@@ -119,40 +122,40 @@ export const ratings = pgTable(
   })
 );
 
-export const ratingsRelations = relations(ratings, ({ one }) => ({
-  movie: one(movies, {
-    fields: [ratings.movieId],
-    references: [movies.id]
+export const ratingsRelations = relations(ratingsTable, ({ one }) => ({
+  movie: one(moviesTable, {
+    fields: [ratingsTable.movieId],
+    references: [moviesTable.id]
   }),
-  user: one(users, {
-    fields: [ratings.userId],
-    references: [users.id]
+  user: one(usersTable, {
+    fields: [ratingsTable.userId],
+    references: [usersTable.id]
   })
 }));
 
 // Watchlists
-export const watchlists = pgTable('watchlists', {
+export const watchlistsTable = pgTable('watchlists', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 128 }).notNull(),
   ownerId: integer('owner_id')
-    .references(() => users.id)
+    .references(() => usersTable.id)
     .notNull()
 });
 
-export const watchlistRelations = relations(watchlists, ({ many }) => ({
-  watchlistMoves: many(watchlistMovies),
-  watchlistUsers: many(watchlistUsers)
+export const watchlistRelations = relations(watchlistsTable, ({ many }) => ({
+  watchlistMovies: many(watchlistMoviesTable),
+  watchlistUsers: many(watchlistUsersTable)
 }));
 
 // Watchlist movies
-export const watchlistMovies = pgTable(
+export const watchlistMoviesTable = pgTable(
   'watchlist_movies',
   {
     watchlistId: integer('watchlist_id')
-      .references(() => watchlists.id)
+      .references(() => watchlistsTable.id)
       .notNull(),
     movieId: integer('movie_id')
-      .references(() => movies.id)
+      .references(() => moviesTable.id)
       .notNull(),
     order: integer('order')
   },
@@ -162,45 +165,48 @@ export const watchlistMovies = pgTable(
 );
 
 export const watchlistMoviesRelations = relations(
-  watchlistMovies,
+  watchlistMoviesTable,
   ({ one }) => ({
-    watchlist: one(watchlists, {
-      fields: [watchlistMovies.watchlistId],
-      references: [watchlists.id]
+    watchlist: one(watchlistsTable, {
+      fields: [watchlistMoviesTable.watchlistId],
+      references: [watchlistsTable.id]
     }),
-    movie: one(movies, {
-      fields: [watchlistMovies.movieId],
-      references: [movies.id]
+    movie: one(moviesTable, {
+      fields: [watchlistMoviesTable.movieId],
+      references: [moviesTable.id]
     })
   })
 );
 
 // Watchlist Users
-export const watchlistUsers = pgTable(
+export const watchlistUsersTable = pgTable(
   'watchlist_users',
   {
     watchlistId: integer('watchlist_id')
       .notNull()
-      .references(() => watchlists.id),
+      .references(() => watchlistsTable.id),
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id)
+      .references(() => usersTable.id)
   },
   table => ({
     pk: primaryKey(table.watchlistId, table.userId)
   })
 );
 
-export const watchlistUsersRelations = relations(watchlistUsers, ({ one }) => ({
-  watchlist: one(watchlists, {
-    fields: [watchlistUsers.watchlistId],
-    references: [watchlists.id]
-  }),
-  user: one(users, {
-    fields: [watchlistUsers.userId],
-    references: [users.id]
+export const watchlistUsersRelations = relations(
+  watchlistUsersTable,
+  ({ one }) => ({
+    watchlist: one(watchlistsTable, {
+      fields: [watchlistUsersTable.watchlistId],
+      references: [watchlistsTable.id]
+    }),
+    user: one(usersTable, {
+      fields: [watchlistUsersTable.userId],
+      references: [usersTable.id]
+    })
   })
-}));
+);
 
 // Watchlist Invitations
 export const invitationStatusEnum = pgEnum('invitation_status', [
@@ -208,16 +214,18 @@ export const invitationStatusEnum = pgEnum('invitation_status', [
   'accepted',
   'declined'
 ]);
-export const watchlistInvitations = pgTable(
+export const watchlistInvitationsTable = pgTable(
   'watchlist_invitations',
   {
-    watchlistId: integer('watchlist_id').references(() => watchlists.id),
+    watchlistId: integer('watchlist_id')
+      .references(() => watchlistsTable.id)
+      .notNull(),
     senderId: integer('sender_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => usersTable.id),
     recipientId: integer('recipient_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => usersTable.id),
     invitationDateTime: timestamp('invitation_date_time', {
       withTimezone: true,
       mode: 'date'
@@ -234,20 +242,20 @@ export const watchlistInvitations = pgTable(
 );
 
 export const watchlistInvitationsRelations = relations(
-  watchlistInvitations,
+  watchlistInvitationsTable,
   ({ one }) => ({
-    watchlist: one(watchlists, {
-      fields: [watchlistInvitations.watchlistId],
-      references: [watchlists.id]
+    watchlist: one(watchlistsTable, {
+      fields: [watchlistInvitationsTable.watchlistId],
+      references: [watchlistsTable.id]
     }),
-    sender: one(users, {
-      fields: [watchlistInvitations.senderId],
-      references: [users.id],
+    sender: one(usersTable, {
+      fields: [watchlistInvitationsTable.senderId],
+      references: [usersTable.id],
       relationName: 'sender'
     }),
-    recipient: one(users, {
-      fields: [watchlistInvitations.recipientId],
-      references: [users.id],
+    recipient: one(usersTable, {
+      fields: [watchlistInvitationsTable.recipientId],
+      references: [usersTable.id],
       relationName: 'recipient'
     })
   })
@@ -265,44 +273,45 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'watchlist_added_movie'
 ]);
 
-export const notifications = pgTable('notifications', {
+export const notificationsTable = pgTable('notifications', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => usersTable.id),
   title: varchar('title', { length: 100 }).notNull(),
   content: varchar('content', { length: 500 }).notNull(),
   creationDateTime: timestamp('creation_date_time', {
     withTimezone: true,
     mode: 'date'
   }),
-  status: notificationStatusEnum('status').default('unread').notNull()
+  status: notificationStatusEnum('status').default('unread').notNull(),
+  type: notificationTypeEnum('type').notNull()
 });
 
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id]
+export const notificationsRelations = relations(
+  notificationsTable,
+  ({ one }) => ({
+    user: one(usersTable, {
+      fields: [notificationsTable.userId],
+      references: [usersTable.id]
+    })
   })
-}));
+);
 
 // Events
 export const eventTypeEnum = pgEnum('event_type', ['movie_view']);
 
-export const events = pgTable(
+export const eventsTable = pgTable(
   'events',
   {
     id: serial('id').primaryKey(),
-    userId: integer('user_id').references(() => users.id),
-    timestamp: timestamp('timestamp'),
+    userId: integer('user_id').references(() => usersTable.id),
+    timestamp: timestamp('timestamp').notNull(),
     eventType: eventTypeEnum('event_type').notNull(),
     eventData: json('event_data'),
-    movieId: integer('movie_id').references(() => movies.id)
+    movieId: integer('movie_id').references(() => moviesTable.id)
   },
   table => ({
     userIdx: index('idx_user').on(table.userId)
   })
 );
-
-// Index created through Postgres
-// CREATE INDEX idx_movie_timestamp ON Events (movieId, timestamp DESC);

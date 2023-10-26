@@ -1,5 +1,5 @@
-import { users } from '../db/schema';
+import { usersTable } from '../db/schema';
 
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type User = typeof usersTable.$inferSelect;
+export type NewUser = typeof usersTable.$inferInsert;
 export type SessionUser = Pick<User, 'email' | 'id' | 'username'>;

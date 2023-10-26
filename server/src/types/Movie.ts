@@ -1,4 +1,4 @@
-import { movies } from '../db/schema';
+import { moviesTable } from '../db/schema';
 
-export type Movie = typeof movies.$inferSelect;
-export type NewMovie = typeof movies.$inferInsert;
+export type Movie = typeof moviesTable.$inferSelect;
+export type NewMovie = typeof moviesTable.$inferInsert;

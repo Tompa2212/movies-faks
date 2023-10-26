@@ -36,7 +36,7 @@ app.use(
 );
 
 app.get('/', (_, res) => {
-  res.send('<h1>Movies API</h1>');
+  return res.send('<h1>Movies API</h1>');
 });
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', isAuthenticated, userRouter);

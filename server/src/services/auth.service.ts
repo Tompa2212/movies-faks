@@ -1,23 +1,24 @@
 import { omit } from 'lodash';
-import User from '../entities/User';
+import { NewUser } from '../types/User';
 import UnauthenticatedError from '../errors/unauthenticated';
-import { userRepository } from '../repository/user.repository';
+
 import { hash, hashCompare } from '../utils/hashing';
+import { authRepository } from '../repository/auth.repository';
 
 const login = async (email: string, password: string) => {
-  const user = await userRepository.findByEmail(email);
+  const user = await authRepository.findOneByEmail(email);
 
   if (!user) {
-    throw new UnauthenticatedError({ message: 'Invalid credentials' });
+    throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
   const isValidPassword = hashCompare(user.password, password);
 
   if (!isValidPassword) {
-    throw new UnauthenticatedError({ message: 'Invalid credentials' });
+    throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  return omit(user, ['password', 'firstName', 'lastName']);
+  return omit(user, ['password']);
 };
 
 const register = async ({
@@ -26,10 +27,10 @@ const register = async ({
   firstName,
   lastName,
   username
-}: Omit<User, 'id'>) => {
+}: NewUser) => {
   const hashedPassword = await hash(password);
 
-  const newUser = await userRepository.create({
+  const newUser = await authRepository.create({
     email,
     password: hashedPassword,
     firstName,
@@ -37,7 +38,7 @@ const register = async ({
     username
   });
 
-  return omit(newUser, ['password', 'firstName', 'lastName']);
+  return omit(newUser, ['password']);
 };
 
 export const authService = { login, register };
