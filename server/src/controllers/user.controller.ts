@@ -14,6 +14,10 @@ const getUser = async (req: Request, res: Response) => {
     });
   }
 
+  if (req.session.user.id !== id) {
+    throw new BadRequestError({ description: `Cannot get user with id ${id}` });
+  }
+
   const user = await userService.getUser(id);
 
   return res.status(StatusCodes.OK).json({ user });

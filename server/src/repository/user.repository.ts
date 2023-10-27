@@ -22,10 +22,10 @@ function makeUserRepository() {
   const { password, active, ...safeTableColumns } = getTableColumns(usersTable);
 
   const findOneById = async (id: number) => {
-    const user = await pool.query<Omit<User, 'password'>>(
-      `SELECT ${base.selectOmit(['password'])} 
+    const user = await pool.query<Omit<User, 'password' | 'active'>>(
+      `SELECT ${base.selectOmit(['password', 'active'])} 
          FROM ${base.table} 
-       WHERE id = $1 AND
+       WHERE id = ($1) AND
          active = true`,
       [id]
     );
