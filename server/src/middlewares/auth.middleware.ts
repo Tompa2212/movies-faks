@@ -3,7 +3,7 @@ import UnauthenticatedError from '../errors/unauthenticated';
 
 export const isAuthenticated = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   if (req.session.user) {

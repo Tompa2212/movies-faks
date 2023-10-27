@@ -2,7 +2,7 @@ import { pgRepository } from './base-repository/pg.repository';
 import { db, pool } from '../db';
 import { NewUser, User } from '../types/User';
 import { usersTable } from '../db/schema';
-import { eq, getTableColumns, like, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, ilike } from 'drizzle-orm';
 
 function makeUserRepository() {
   const base = pgRepository<User>({
@@ -14,17 +14,19 @@ function makeUserRepository() {
       password: 'password',
       username: 'username',
       firstName: 'first_name',
-      lastName: 'last_name'
+      lastName: 'last_name',
+      active: 'active'
     }
   });
 
-  const { password, ...safeTableColumns } = getTableColumns(usersTable);
+  const { password, active, ...safeTableColumns } = getTableColumns(usersTable);
 
   const findOneById = async (id: number) => {
     const user = await pool.query<Omit<User, 'password'>>(
-      `SELECT ${base.selectOmit(['password'])} FROM ${
-        base.table
-      } WHERE id = $1`,
+      `SELECT ${base.selectOmit(['password'])} 
+         FROM ${base.table} 
+       WHERE id = $1 AND
+         active = true`,
       [id]
     );
 
@@ -42,7 +44,8 @@ function makeUserRepository() {
 
   const deleteUser = async (id: number) => {
     const user = await db
-      .delete(usersTable)
+      .update(usersTable)
+      .set({ active: false })
       .where(eq(usersTable.id, id))
       .returning(safeTableColumns);
 
@@ -53,7 +56,7 @@ function makeUserRepository() {
     const user = await db
       .update(usersTable)
       .set(data)
-      .where(eq(usersTable.id, id))
+      .where(and(eq(usersTable.id, id), eq(usersTable.active, true)))
       .returning(safeTableColumns);
 
     return user[0] ?? null;
@@ -63,7 +66,12 @@ function makeUserRepository() {
     return db
       .select(safeTableColumns)
       .from(usersTable)
-      .where(like(usersTable.username, sql`${username}%`));
+      .where(
+        and(
+          ilike(usersTable.username, `${username}%`),
+          eq(usersTable.active, true)
+        )
+      );
   };
 
   return {

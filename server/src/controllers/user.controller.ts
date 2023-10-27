@@ -6,17 +6,35 @@ import { zParse } from '../utils/z-parse';
 import BadRequestError from '../errors/bad-request';
 
 const getUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
 
-  const user = await userService.getUser(parseInt(id));
+  if (Number.isNaN(id)) {
+    throw new BadRequestError({
+      description: `Invalid type, id should be of type number`
+    });
+  }
+
+  const user = await userService.getUser(id);
 
   return res.status(StatusCodes.OK).json({ user });
 };
 
-const deleteUSer = async (req: Request, res: Response) => {
-  const { id } = req.params;
+const deleteUser = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
 
-  const user = await userService.deleteUser(parseInt(id));
+  if (Number.isNaN(id)) {
+    throw new BadRequestError({
+      description: `Invalid type, id should be of type number`
+    });
+  }
+
+  if (req.session.user.id !== id) {
+    throw new BadRequestError({
+      description: `You cannot delete user with id ${id}`
+    });
+  }
+
+  const user = await userService.deleteUser(id);
 
   return res.json(StatusCodes.OK).json({ user });
 };
@@ -39,4 +57,29 @@ const updateUser = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json({ user });
 };
 
-export const userController = { getUser, deleteUSer, updateUser };
+const searchUsers = async (req: Request, res: Response) => {
+  const { username } = req.query;
+
+  if (!username) {
+    throw new BadRequestError({
+      description: 'Username query param cannot be empty.'
+    });
+  }
+
+  if (Array.isArray(username)) {
+    throw new BadRequestError({
+      description: 'Username query param should be of type string',
+      errors: [
+        {
+          message: `Provided query param of type array: [${username.toString()}]`
+        }
+      ]
+    });
+  }
+
+  const users = await userService.searchUsersByUsername(username as string);
+
+  return res.status(200).json({ users });
+};
+
+export const userController = { getUser, deleteUser, updateUser, searchUsers };

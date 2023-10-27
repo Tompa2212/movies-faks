@@ -10,7 +10,8 @@ import {
   index,
   primaryKey,
   json,
-  uniqueIndex
+  uniqueIndex,
+  boolean
 } from 'drizzle-orm/pg-core';
 
 // Users
@@ -20,7 +21,8 @@ export const usersTable = pgTable('users', {
   lastName: varchar('last_name', { length: 64 }),
   password: varchar('password', { length: 255 }).notNull(),
   email: varchar('email', { length: 64 }).notNull().unique(),
-  username: varchar('username', { length: 32 })
+  username: varchar('username', { length: 32 }),
+  active: boolean('active').default(true)
 });
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
@@ -81,10 +83,10 @@ export const movieGenresTable = pgTable(
   {
     movieId: integer('movie_id')
       .notNull()
-      .references(() => moviesTable.id),
+      .references(() => moviesTable.id, { onDelete: 'cascade' }),
     genreId: integer('genre_id')
       .notNull()
-      .references(() => genresTable.id)
+      .references(() => genresTable.id, { onDelete: 'cascade' })
   },
   table => ({
     pk: primaryKey(table.movieId, table.genreId)
@@ -113,9 +115,9 @@ export const ratingsTable = pgTable(
       .references(() => usersTable.id),
     movieId: integer('movie_id')
       .notNull()
-      .references(() => moviesTable.id),
+      .references(() => moviesTable.id, { onDelete: 'cascade' }),
     rating: integer('rating').notNull(),
-    timestamp: timestamp('timestamp')
+    timestamp: timestamp('timestamp').defaultNow()
   },
   table => ({
     pk: primaryKey(table.userId, table.movieId)
@@ -155,7 +157,7 @@ export const watchlistMoviesTable = pgTable(
       .references(() => watchlistsTable.id)
       .notNull(),
     movieId: integer('movie_id')
-      .references(() => moviesTable.id)
+      .references(() => moviesTable.id, { onDelete: 'cascade' })
       .notNull(),
     order: integer('order')
   },
@@ -315,3 +317,21 @@ export const eventsTable = pgTable(
     userIdx: index('idx_user').on(table.userId)
   })
 );
+
+// SELECT m.title, m_genres.*, rating.*
+// FROM movies m
+// LEFT JOIN LATERAL (
+//   SELECT array_to_json(array_agg(json_build_object('id', g.id, 'name', g.name))) as genres
+//   FROM movie_genres mg
+//   INNER JOIN genres g ON mg.genre_id = g.id
+//   WHERE mg.movie_id = m.id
+//   GROUP BY mg.movie_id
+// ) AS m_genres ON TRUE
+// LEFT JOIN LATERAL (
+// 	SELECT
+// 	  AVG(rating) as rating,
+// 	  COUNT(rating) as votes
+// 	FROM ratings
+// 	WHERE movie_id = m.id
+// ) as rating ON TRUE
+// where rating.rating is not null;

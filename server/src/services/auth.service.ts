@@ -18,7 +18,7 @@ const login = async (email: string, password: string) => {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  return omit(user, ['password']);
+  return omit(user, ['password', 'active']);
 };
 
 const register = async ({
@@ -38,7 +38,7 @@ const register = async ({
     username
   });
 
-  return omit(newUser, ['password']);
+  return omit(newUser, ['password', 'active']);
 };
 
 export const authService = { login, register };
