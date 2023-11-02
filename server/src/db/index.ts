@@ -1,7 +1,7 @@
-import { Logger } from 'drizzle-orm/logger';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool, PoolClient, PoolConfig } from 'pg';
 import * as schema from './schema';
+import { Logger } from 'drizzle-orm';
 
 const access: PoolConfig = {
   user: process.env.DATABASE_USER,
@@ -20,7 +20,7 @@ class MyLogger implements Logger {
   }
 }
 
-export const db = drizzle(pool, { logger: new MyLogger(), schema });
+export const db = drizzle(pool, { schema, logger: new MyLogger() });
 
 export const getConnect = (tx?: PoolClient): Promise<PoolClient> => {
   if (tx) {

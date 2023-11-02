@@ -13,11 +13,14 @@ async function login(req: Request, res: Response) {
     });
   }
 
-  const user = await authService.login(email, password);
+  const { user, accessToken, refreshToken } = await authService.login(
+    email,
+    password
+  );
 
   req.session.user = user;
 
-  res.status(StatusCodes.OK).json({ user });
+  res.status(StatusCodes.OK).json({ user, accessToken, refreshToken });
 }
 
 async function register(req: Request, res: Response) {
@@ -58,9 +61,22 @@ async function getSession(req: Request, res: Response) {
   throw new UnauthenticatedError();
 }
 
+const refreshToken = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    throw new BadRequestError({ description: 'Provide refresh token' });
+  }
+
+  const payload = authService.refreshToken(refreshToken);
+
+  return res.status(StatusCodes.OK).json({ ...payload });
+};
+
 export const authController = {
   login,
   register,
   logout,
-  getSession
+  getSession,
+  refreshToken
 };

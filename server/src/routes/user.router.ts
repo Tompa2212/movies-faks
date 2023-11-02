@@ -9,4 +9,4 @@ userRouter
   .delete(userController.deleteUser)
   .patch(userController.updateUser);
 
-userRouter.get('/', userController.searchUsers);
+userRouter.route('/:id/watchlists').get(userController.getUserWatchlists);

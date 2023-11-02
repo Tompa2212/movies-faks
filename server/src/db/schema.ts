@@ -11,19 +11,29 @@ import {
   primaryKey,
   json,
   uniqueIndex,
-  boolean
+  boolean,
+  bigint,
+  decimal
 } from 'drizzle-orm/pg-core';
 
 // Users
-export const usersTable = pgTable('users', {
-  id: serial('id').primaryKey(),
-  firstName: varchar('first_name', { length: 64 }).notNull(),
-  lastName: varchar('last_name', { length: 64 }),
-  password: varchar('password', { length: 255 }).notNull(),
-  email: varchar('email', { length: 64 }).notNull().unique(),
-  username: varchar('username', { length: 32 }),
-  active: boolean('active').default(true)
-});
+export const usersTable = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    email: varchar('email', { length: 64 }).notNull().unique(),
+    password: varchar('password', { length: 255 }),
+    username: varchar('username', { length: 32 }),
+    firstName: varchar('first_name', { length: 64 }).notNull(),
+    lastName: varchar('last_name', { length: 64 }),
+    active: boolean('active').default(true),
+    emailVerified: timestamp('emailVerified', { mode: 'date' }),
+    image: text('image')
+  },
+  table => ({
+    usernameIdx: index('users_username_idx').on(table.username)
+  })
+);
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
   watchlistUsers: many(watchlistUsersTable),
@@ -36,6 +46,44 @@ export const usersRelations = relations(usersTable, ({ many }) => ({
     relationName: 'recipient'
   })
 }));
+
+export const accountsTable = pgTable('accounts', {
+  id: serial('id').primaryKey(),
+  userId: integer('userId')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 255 }).notNull(),
+  provider: varchar('provider', { length: 255 }).notNull(),
+  providerAccountId: text('providerAccountId').notNull(),
+  refresh_token: text('refresh_token'),
+  access_token: text('access_token'),
+  expires_at: bigint('expires_at', { mode: 'bigint' }),
+  token_type: text('token_type'),
+  scope: text('scope'),
+  id_token: text('id_token'),
+  session_state: text('session_state')
+});
+
+export const sessionsTable = pgTable('sessions', {
+  id: serial('id').primaryKey(),
+  sessionToken: varchar('sessionToken', { length: 255 }).notNull(),
+  userId: integer('userId')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { withTimezone: true }).notNull()
+});
+
+export const verificationTokensTable = pgTable(
+  'verification_tokens',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: timestamp('expires', { withTimezone: true }).notNull()
+  },
+  vt => ({
+    compoundKey: primaryKey(vt.identifier, vt.token)
+  })
+);
 
 // Genres
 export const genresTable = pgTable('genres', {
@@ -62,6 +110,8 @@ export const moviesTable = pgTable(
     released: timestamp('released', { withTimezone: true, mode: 'date' }),
     type: showTypeEnum('type').notNull(),
     releasedYear: integer('released_year'),
+    rating: decimal('rating', { precision: 3, scale: 1 }),
+    votes: integer('votes'),
     mongoId: varchar('mongoId', { length: 50 })
   },
   table => {
@@ -89,7 +139,8 @@ export const movieGenresTable = pgTable(
       .references(() => genresTable.id, { onDelete: 'cascade' })
   },
   table => ({
-    pk: primaryKey(table.movieId, table.genreId)
+    pk: primaryKey(table.movieId, table.genreId),
+    movieIdIdx: index('movie_genres_movie_id_idx').on(table.movieId)
   })
 );
 
@@ -117,10 +168,11 @@ export const ratingsTable = pgTable(
       .notNull()
       .references(() => moviesTable.id, { onDelete: 'cascade' }),
     rating: integer('rating').notNull(),
-    timestamp: timestamp('timestamp').defaultNow()
+    timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow()
   },
   table => ({
-    pk: primaryKey(table.userId, table.movieId)
+    pk: primaryKey(table.userId, table.movieId),
+    movieIdIdx: index('movie_id_idx').on(table.movieId)
   })
 );
 
@@ -272,7 +324,8 @@ export const notificationStatusEnum = pgEnum('notification_status', [
 export const notificationTypeEnum = pgEnum('notification_type', [
   'watchlist_invitation',
   'watchlist_invitation_accept',
-  'watchlist_added_movie'
+  'watchlist_added_movie',
+  'app_notification'
 ]);
 
 export const notificationsTable = pgTable('notifications', {
@@ -285,7 +338,7 @@ export const notificationsTable = pgTable('notifications', {
   creationDateTime: timestamp('creation_date_time', {
     withTimezone: true,
     mode: 'date'
-  }),
+  }).defaultNow(),
   status: notificationStatusEnum('status').default('unread').notNull(),
   type: notificationTypeEnum('type').notNull()
 });

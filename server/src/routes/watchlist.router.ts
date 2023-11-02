@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import { watchlistController } from '../controllers/watchlist.controller';
 
 export const watchlistRouter = Router();
 
-watchlistRouter.route('/:userId/watchlists/').get(async (req, res) => {
-  return res.send('OK');
-});
+watchlistRouter
+  .route('/:id')
+  .get(watchlistController.getWatchlist)
+  .delete(watchlistController.deleteWatchlist);

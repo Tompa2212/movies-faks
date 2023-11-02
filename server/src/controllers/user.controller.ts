@@ -4,6 +4,8 @@ import { StatusCodes } from 'http-status-codes';
 import { updateBasicUserInfoSchema } from '../schema/user.schema';
 import { zParse } from '../utils/z-parse';
 import BadRequestError from '../errors/bad-request';
+import ForbiddenError from '../errors/forbidden';
+import { watchlistService } from '../services/watchlist.service';
 
 const getUser = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
@@ -15,12 +17,12 @@ const getUser = async (req: Request, res: Response) => {
   }
 
   if (req.session.user.id !== id) {
-    throw new BadRequestError({ description: `Cannot get user with id ${id}` });
+    throw new ForbiddenError();
   }
 
   const user = await userService.getUser(id);
 
-  return res.status(StatusCodes.OK).json({ user });
+  return res.status(StatusCodes.OK).json({ data: user });
 };
 
 const deleteUser = async (req: Request, res: Response) => {
@@ -33,14 +35,16 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 
   if (req.session.user.id !== id) {
-    throw new BadRequestError({
-      description: `You cannot delete user with id ${id}`
-    });
+    throw new ForbiddenError();
   }
 
-  const user = await userService.deleteUser(id);
+  req.session.destroy(err => {
+    if (err) {
+      throw err;
+    }
 
-  return res.json(StatusCodes.OK).json({ user });
+    return res.send('OK');
+  });
 };
 
 const updateUser = async (req: Request, res: Response) => {
@@ -58,7 +62,7 @@ const updateUser = async (req: Request, res: Response) => {
 
   const user = await userService.updateUser(params.id, body);
 
-  return res.status(StatusCodes.OK).json({ user });
+  return res.status(StatusCodes.OK).json({ data: user });
 };
 
 const searchUsers = async (req: Request, res: Response) => {
@@ -83,7 +87,25 @@ const searchUsers = async (req: Request, res: Response) => {
 
   const users = await userService.searchUsersByUsername(username as string);
 
-  return res.status(200).json({ users });
+  return res.status(200).json({ data: users });
 };
 
-export const userController = { getUser, deleteUser, updateUser, searchUsers };
+const getUserWatchlists = async (req: Request, res: Response) => {
+  const { id: userId } = req.params;
+
+  if (req.user.id !== parseInt(userId)) {
+    throw new ForbiddenError();
+  }
+
+  const data = await watchlistService.getUserWatchlists(parseInt(userId));
+
+  return res.status(StatusCodes.OK).json({ data });
+};
+
+export const userController = {
+  getUser,
+  deleteUser,
+  updateUser,
+  searchUsers,
+  getUserWatchlists
+};

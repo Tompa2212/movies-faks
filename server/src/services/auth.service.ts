@@ -1,9 +1,14 @@
-import { omit } from 'lodash';
+import { omit, pick } from 'lodash';
 import { NewUser } from '../types/User';
 import UnauthenticatedError from '../errors/unauthenticated';
 
 import { hash, hashCompare } from '../utils/hashing';
 import { authRepository } from '../repository/auth.repository';
+import {
+  createAccessToken,
+  createRefreshToken,
+  verifyRefreshToken
+} from '../utils/jwt';
 
 const login = async (email: string, password: string) => {
   const user = await authRepository.findOneByEmail(email);
@@ -12,13 +17,19 @@ const login = async (email: string, password: string) => {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  const isValidPassword = hashCompare(user.password, password);
+  const isValidPassword = hashCompare(user.password!, password);
 
   if (!isValidPassword) {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  return omit(user, ['password', 'active']);
+  const userDto = pick(user, ['id', 'email', 'username']);
+
+  return {
+    user: userDto,
+    accessToken: createAccessToken(userDto),
+    refreshToken: createRefreshToken(userDto)
+  };
 };
 
 const register = async ({
@@ -28,7 +39,7 @@ const register = async ({
   lastName,
   username
 }: NewUser) => {
-  const hashedPassword = await hash(password);
+  const hashedPassword = await hash(password!);
 
   const newUser = await authRepository.create({
     email,
@@ -38,7 +49,22 @@ const register = async ({
     username
   });
 
-  return omit(newUser, ['password', 'active']);
+  return pick(newUser, ['id', 'email', 'username']);
 };
 
-export const authService = { login, register };
+const refreshToken = (token: string) => {
+  try {
+    const payload = verifyRefreshToken(token);
+
+    return {
+      user: payload,
+      accessToken: createAccessToken(payload),
+      refreshToken: createRefreshToken(payload)
+    };
+  } catch (error) {
+    // console.log(error);
+    throw new UnauthenticatedError();
+  }
+};
+
+export const authService = { login, register, refreshToken };

@@ -15,7 +15,9 @@ function makeAuthRepository() {
       username: 'username',
       firstName: 'first_name',
       lastName: 'last_name',
-      active: 'active'
+      active: 'active',
+      emailVerified: 'emailVerified',
+      image: 'image'
     }
   });
 
