@@ -46,7 +46,6 @@ app.use(
     }
   })
 );
-
 app.get('/', (_, res) => {
   return res.send('<h1>Movies API</h1>');
 });

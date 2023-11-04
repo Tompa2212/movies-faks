@@ -211,6 +211,7 @@ export const watchlistMoviesTable = pgTable(
     movieId: integer('movie_id')
       .references(() => moviesTable.id, { onDelete: 'cascade' })
       .notNull(),
+    addedBy: integer('added_by').references(() => usersTable.id),
     order: integer('order')
   },
   table => ({

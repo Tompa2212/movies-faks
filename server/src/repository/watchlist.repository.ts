@@ -5,7 +5,7 @@ import { WatchlistDto, WathclistListDto } from '../types/dto-types/watchlist';
 
 function makeWatchlistRepository() {
   const base = pgRepository<Watchlist>({
-    table: 'users',
+    table: 'watchlists',
     primaryKey: 'id',
     mapping: {
       id: 'id',
@@ -17,17 +17,10 @@ function makeWatchlistRepository() {
   const findBaseWatchlistById = async (
     id: number
   ): Promise<Watchlist | null> => {
-    const res = await pool.query<Watchlist>(
-      `
-      select * from watchlists where id = $1
-    `,
-      [id]
-    );
-
-    return res.rows[0] ?? null;
+    return await base.findById(id);
   };
 
-  const findWatchlistById = async (
+  const findWatchlistWithUsersAndMovies = async (
     id: number
   ): Promise<WatchlistDto | null> => {
     const res = await pool.query<WatchlistDto>(
@@ -182,29 +175,10 @@ function makeWatchlistRepository() {
     return res.rows;
   };
 
-  const deleteWatchlist = async (
-    id: number,
-    ownerId: number
-  ): Promise<Watchlist | null> => {
-    const res = await pool.query<Watchlist>(
-      `
-      DELETE 
-      FROM watchlists 
-      where id = $1 and
-        ownerId = $2
-      RETURNING *
-    `,
-      [id, ownerId]
-    );
-
-    return res.rows[0] ?? null;
-  };
-
   return {
     ...base,
     findWatchlistsByUserId,
-    findWatchlistById,
-    deleteWatchlist,
+    findWatchlistWithUsersAndMovies,
     findBaseWatchlistById
   };
 }

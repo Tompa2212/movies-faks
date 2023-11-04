@@ -21,6 +21,7 @@ export const isAuthenticated = (
   }
 
   if (req.session.user) {
+    req.user = req.session.user;
     return next();
   }
 

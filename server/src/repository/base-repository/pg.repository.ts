@@ -1,3 +1,4 @@
+import { pool } from '../../db';
 import { buildAliasMapper } from './query-builder';
 import { ColumnData, AnyObject } from './types';
 
@@ -38,12 +39,40 @@ export function pgRepository<T extends AnyObject>({
     );
   };
 
+  const findById = async (id: number): Promise<T | null> => {
+    const res = await pool.query<T>(
+      `
+      SELECT ${allColumns} FROM ${table}
+      WHERE id = $1
+    `,
+      [id]
+    );
+
+    console.log(res.rows);
+    return res.rows[0] ?? null;
+  };
+
+  const deleteById = async (id: number): Promise<T | null> => {
+    const res = await pool.query<T>(
+      `
+      DELETE FROM ${table}
+      WHERE id = $1
+      RETURNING ${allColumns}
+    `,
+      [id]
+    );
+
+    return res.rows[0] ?? null;
+  };
+
   return {
     table,
     primaryKey,
     allColumns,
     columnAlias,
     selectOmit,
-    cols
+    cols,
+    findById,
+    deleteById
   };
 }

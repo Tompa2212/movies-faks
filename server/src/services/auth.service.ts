@@ -9,6 +9,7 @@ import {
   createRefreshToken,
   verifyRefreshToken
 } from '../utils/jwt';
+import { compareSync, hashSync } from 'bcrypt';
 
 const login = async (email: string, password: string) => {
   const user = await authRepository.findOneByEmail(email);
@@ -17,7 +18,7 @@ const login = async (email: string, password: string) => {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  const isValidPassword = hashCompare(user.password!, password);
+  const isValidPassword = await hashCompare(password, user.password!);
 
   if (!isValidPassword) {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
