@@ -1,9 +1,9 @@
-import { User } from 'next-auth';
 import React from 'react';
 import Image from 'next/image';
 import { AvatarProps } from '@radix-ui/react-avatar';
-import { Avatar, AvatarFallback } from '../ui/Avatar';
-import Icon from '../ui/Icons';
+import { Avatar, AvatarFallback } from './ui/Avatar';
+import Icon from './ui/Icons';
+import { User } from '@/types/User';
 
 type UserAvatarProps = {
   user: Pick<User, 'firstName' | 'image'>;
@@ -13,7 +13,6 @@ const UserAvatar = ({
   user: { firstName, image },
   ...props
 }: UserAvatarProps) => {
-  console.log(image);
   return (
     <Avatar {...props}>
       {image ? (
@@ -28,7 +27,7 @@ const UserAvatar = ({
       ) : (
         <AvatarFallback>
           <span className="sr-only">{firstName}</span>
-          <Icon name="User" className="w-6 h-6" />
+          <Icon name="User2" className="w-6 h-6" />
         </AvatarFallback>
       )}
     </Avatar>

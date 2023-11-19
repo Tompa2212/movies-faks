@@ -1,4 +1,4 @@
-import { omit, pick } from 'lodash';
+import { pick } from 'lodash';
 import { NewUser } from '../types/User';
 import UnauthenticatedError from '../errors/unauthenticated';
 
@@ -9,7 +9,6 @@ import {
   createRefreshToken,
   verifyRefreshToken
 } from '../utils/jwt';
-import { compareSync, hashSync } from 'bcrypt';
 
 const login = async (email: string, password: string) => {
   const user = await authRepository.findOneByEmail(email);
@@ -24,7 +23,7 @@ const login = async (email: string, password: string) => {
     throw new UnauthenticatedError({ description: 'Invalid credentials' });
   }
 
-  const userDto = pick(user, ['id', 'email', 'username']);
+  const userDto = pick(user, ['id', 'email', 'username', 'firstName']);
 
   return {
     user: userDto,

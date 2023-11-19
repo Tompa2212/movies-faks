@@ -1,20 +1,22 @@
-import { pool } from '../db';
+import { db, pool } from '../db';
+import { watchlistUsersTable } from '../db/schema';
 
 function makeWatchlistUserRepository() {
   const table = 'watchlist_users';
 
-  const addUserToWatchlist = async (watchlistId: number, userId: number) => {
-    const res = await pool.query(
-      `
-    INSERT INTO 
-    ${table} (watchlist_id, user_id)
-    VALUES ($1, $2)
-    RETURNING *
-    `,
-      [watchlistId, userId]
-    );
+  const addUsersToWatchlist = async (
+    data: { watchlistId: number; userId: number }[]
+  ) => {
+    const res = await db
+      .insert(watchlistUsersTable)
+      .values(data)
+      .onConflictDoNothing()
+      .returning({
+        watchlistId: watchlistUsersTable.watchlistId,
+        userId: watchlistUsersTable.userId
+      });
 
-    return res.rows;
+    return res;
   };
 
   const removeUserFromWatchlist = async (
@@ -49,7 +51,7 @@ function makeWatchlistUserRepository() {
   };
 
   return {
-    addUserToWatchlist,
+    addUsersToWatchlist,
     removeUserFromWatchlist,
     findWatchlistUsers
   };

@@ -64,15 +64,12 @@ function makeUserRepository() {
     return user[0] ?? null;
   };
 
-  const findManyByUsername = async (username: string) => {
+  const findManyByEmail = async (email: string) => {
     return db
       .select(safeTableColumns)
       .from(usersTable)
       .where(
-        and(
-          ilike(usersTable.username, `${username}%`),
-          eq(usersTable.active, true)
-        )
+        and(ilike(usersTable.email, `${email}%`), eq(usersTable.active, true))
       );
   };
 
@@ -82,7 +79,7 @@ function makeUserRepository() {
     create,
     deleteUser,
     updateUser,
-    findManyByUsername
+    findManyByEmail
   };
 }
 

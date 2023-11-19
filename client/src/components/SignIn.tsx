@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Link from 'next/link';
-import UserAuthForm from './user/UserAuthForm';
-import { getSession } from '@/lib/get-session';
 import { redirect } from 'next/navigation';
+import LoginForm from './user/LoginForm';
+import { getAuthSession } from '@/lib/get-session';
 
 const SignIn = async () => {
-  const session = await getSession();
+  const session = await getAuthSession();
 
   if (session) {
     redirect('/');
@@ -16,11 +16,7 @@ const SignIn = async () => {
     <div className="container mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="max-w-xs mx-auto text-sm">
-          By continuing, you are setting up a Movies-Faks account and agree to
-          our User Agreement and Privacy Policy.
-        </p>
-        <UserAuthForm />
+        <LoginForm />
         <p className="px-8 text-sm text-center text-zinc-700">
           New to Movies-Faks?{' '}
           <Link

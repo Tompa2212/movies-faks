@@ -11,17 +11,37 @@ const getWatchlist = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json({ data });
 };
 
+const createWatchlist = async (req: Request, res: Response) => {
+  const { title } = req.body;
+
+  if (!title) {
+    throw new BadRequestError({
+      description: 'Please provide watchlist title.'
+    });
+  }
+
+  if (typeof title !== 'string') {
+    throw new BadRequestError({
+      description: 'Invalid data type for watchlist title. Provide string.'
+    });
+  }
+
+  const watchlist = await watchlistService.createWatchlist(
+    title,
+    req.session.user.id
+  );
+
+  return res.status(StatusCodes.CREATED).json({ data: watchlist });
+};
+
 const deleteWatchlist = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   await watchlistService.deleteWatchlist(parseInt(id), req.user.id);
 
-  return res.status(StatusCodes.OK);
+  return res.status(StatusCodes.OK).end();
 };
 
-const addUser = (req: Request, res: Response) => {
-  return res.send('');
-};
 const removeUser = (req: Request, res: Response) => {
   return res.send('');
 };
@@ -57,9 +77,9 @@ const removeMovie = async (req: Request, res: Response) => {
 };
 
 export const watchlistController = {
+  createWatchlist,
   getWatchlist,
   deleteWatchlist,
-  addUser,
   removeUser,
   addMovie,
   removeMovie

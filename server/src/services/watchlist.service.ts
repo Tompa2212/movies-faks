@@ -21,11 +21,20 @@ const getWatchlist = async (watchlistId: number, userId: number) => {
     });
   }
 
-  if (watchlist.users.findIndex(user => user.id === userId) === -1) {
+  if (watchlist.users.findIndex((user) => user.id === userId) === -1) {
     throw new ForbiddenError({
       description: 'Not allowed to access this resource'
     });
   }
+
+  return watchlist;
+};
+
+const createWatchlist = async (title: string, ownerId: number) => {
+  const watchlist = await watchlistRepository.create(title, ownerId);
+  await watchlistUserRepository.addUsersToWatchlist([
+    { watchlistId: watchlist.id, userId: ownerId }
+  ]);
 
   return watchlist;
 };
@@ -46,8 +55,12 @@ const deleteWatchlist = async (id: number, ownerId: number) => {
   return watchlist;
 };
 
-const addUser = async (watchlistId: number, userId: number) => {
-  return;
+const addUsers = async (watchlistId: number, users: number[]) => {
+  const rows = await watchlistUserRepository.addUsersToWatchlist(
+    users.map((userId) => ({ watchlistId, userId }))
+  );
+
+  return rows;
 };
 
 const removeUser = async (watchlistId: number, userId: number) => {
@@ -61,7 +74,7 @@ const addMovie = async (
 ) => {
   const users = await watchlistUserRepository.findWatchlistUsers(watchlistId);
 
-  if (users.findIndex(user => user.userId === authUser.id) === -1) {
+  if (users.findIndex((user) => user.userId === authUser.id) === -1) {
     throw new ForbiddenError();
   }
 
@@ -109,8 +122,9 @@ const removeMovie = async (
 export const watchlistService = {
   getUserWatchlists,
   getWatchlist,
+  createWatchlist,
   deleteWatchlist,
-  addUser,
+  addUsers,
   removeUser,
   addMovie,
   removeMovie

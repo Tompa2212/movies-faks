@@ -21,4 +21,7 @@ export type NewUser = {
   image: string | null;
 };
 
-export type SessionUser = Pick<User, 'email' | 'id' | 'username'>;
+export type SessionUser = Pick<
+  User,
+  'email' | 'id' | 'username' | 'firstName' | 'image'
+>;

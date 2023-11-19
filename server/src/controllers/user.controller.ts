@@ -6,6 +6,7 @@ import { zParse } from '../utils/z-parse';
 import BadRequestError from '../errors/bad-request';
 import ForbiddenError from '../errors/forbidden';
 import { watchlistService } from '../services/watchlist.service';
+import { notificationService } from '../services/notification.service';
 
 const getUser = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
@@ -38,7 +39,7 @@ const deleteUser = async (req: Request, res: Response) => {
     throw new ForbiddenError();
   }
 
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       throw err;
     }
@@ -65,27 +66,10 @@ const updateUser = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json({ data: user });
 };
 
-const searchUsers = async (req: Request, res: Response) => {
-  const { username } = req.query;
+const searchUsersByEmail = async (req: Request, res: Response) => {
+  const { email } = req.params;
 
-  if (!username) {
-    throw new BadRequestError({
-      description: 'Username query param cannot be empty.'
-    });
-  }
-
-  if (Array.isArray(username)) {
-    throw new BadRequestError({
-      description: 'Username query param should be of type string',
-      errors: [
-        {
-          message: `Provided query param of type array: [${username.toString()}]`
-        }
-      ]
-    });
-  }
-
-  const users = await userService.searchUsersByUsername(username as string);
+  const users = await userService.searchUsersByEmail(email);
 
   return res.status(200).json({ data: users });
 };
@@ -93,7 +77,7 @@ const searchUsers = async (req: Request, res: Response) => {
 const getUserWatchlists = async (req: Request, res: Response) => {
   const { id: userId } = req.params;
 
-  if (req.user.id !== parseInt(userId)) {
+  if (req.session.user.id !== parseInt(userId)) {
     throw new ForbiddenError();
   }
 
@@ -102,10 +86,25 @@ const getUserWatchlists = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json({ data });
 };
 
+const getUserNotifications = async (req: Request, res: Response) => {
+  const { id: userId } = req.params;
+
+  if (req.session.user.id !== parseInt(userId)) {
+    throw new ForbiddenError();
+  }
+
+  const notifications = await notificationService.getUserNotifications(
+    parseInt(userId)
+  );
+
+  return res.status(StatusCodes.OK).json({ data: notifications });
+};
+
 export const userController = {
   getUser,
   deleteUser,
   updateUser,
-  searchUsers,
-  getUserWatchlists
+  searchUsersByEmail,
+  getUserWatchlists,
+  getUserNotifications
 };

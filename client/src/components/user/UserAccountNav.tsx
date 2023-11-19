@@ -6,20 +6,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '../ui/DropdownMenu';
-import UserAvatar from './UserAvatar';
+import UserAvatar from '../UserAvatar';
 import Link from 'next/link';
-import { User } from 'next-auth';
 import Icon from '../ui/Icons';
 import UserNotifications from './UserNotifications';
 import SignOutMenuItem from './SignOutMenuItem';
+import { User } from '@/types/User';
 
 interface UserAccountNavProps {
-  user: Pick<User, 'image' | 'email' | 'firstName' | 'lastName' | 'id'>;
+  user: Pick<User, 'image' | 'email' | 'firstName' | 'id'>;
 }
 
 const UserAccountNav = ({ user }: UserAccountNavProps) => {
-  const userNavUrl = `/user/${user.id}`;
-
   return (
     <div className="flex items-center gap-6">
       <Link href="/watchlists" className="inline-flex items-center gap-1">
@@ -35,9 +33,7 @@ const UserAccountNav = ({ user }: UserAccountNavProps) => {
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
               {user.firstName ? (
-                <p className="font-medium">
-                  {user.firstName} {user.lastName || ''}
-                </p>
+                <p className="font-medium">{user.firstName}</p>
               ) : null}
               {user.email ? (
                 <p className="w-[200px] truncate text-sm text-zinc-700">

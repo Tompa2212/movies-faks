@@ -30,7 +30,7 @@ export const usersTable = pgTable(
     emailVerified: timestamp('emailVerified', { mode: 'date' }),
     image: text('image')
   },
-  table => ({
+  (table) => ({
     usernameIdx: index('users_username_idx').on(table.username)
   })
 );
@@ -80,7 +80,7 @@ export const verificationTokensTable = pgTable(
     token: text('token').notNull(),
     expires: timestamp('expires', { withTimezone: true }).notNull()
   },
-  vt => ({
+  (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token)
   })
 );
@@ -114,7 +114,7 @@ export const moviesTable = pgTable(
     votes: integer('votes'),
     mongoId: varchar('mongoId', { length: 50 })
   },
-  table => {
+  (table) => {
     return {
       titleIdx: index('title_idx').on(table.title)
     };
@@ -138,7 +138,7 @@ export const movieGenresTable = pgTable(
       .notNull()
       .references(() => genresTable.id, { onDelete: 'cascade' })
   },
-  table => ({
+  (table) => ({
     pk: primaryKey(table.movieId, table.genreId),
     movieIdIdx: index('movie_genres_movie_id_idx').on(table.movieId)
   })
@@ -170,7 +170,7 @@ export const ratingsTable = pgTable(
     rating: integer('rating').notNull(),
     timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow()
   },
-  table => ({
+  (table) => ({
     pk: primaryKey(table.userId, table.movieId),
     movieIdIdx: index('movie_id_idx').on(table.movieId)
   })
@@ -212,9 +212,12 @@ export const watchlistMoviesTable = pgTable(
       .references(() => moviesTable.id, { onDelete: 'cascade' })
       .notNull(),
     addedBy: integer('added_by').references(() => usersTable.id),
-    order: integer('order')
+    dateAdded: timestamp('date_added', {
+      withTimezone: true,
+      mode: 'date'
+    }).defaultNow()
   },
-  table => ({
+  (table) => ({
     pk: primaryKey(table.watchlistId, table.movieId)
   })
 );
@@ -239,12 +242,12 @@ export const watchlistUsersTable = pgTable(
   {
     watchlistId: integer('watchlist_id')
       .notNull()
-      .references(() => watchlistsTable.id),
+      .references(() => watchlistsTable.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
       .notNull()
       .references(() => usersTable.id)
   },
-  table => ({
+  (table) => ({
     pk: primaryKey(table.watchlistId, table.userId)
   })
 );
@@ -272,6 +275,7 @@ export const invitationStatusEnum = pgEnum('invitation_status', [
 export const watchlistInvitationsTable = pgTable(
   'watchlist_invitations',
   {
+    id: serial('id').primaryKey(),
     watchlistId: integer('watchlist_id')
       .references(() => watchlistsTable.id)
       .notNull(),
@@ -284,12 +288,14 @@ export const watchlistInvitationsTable = pgTable(
     invitationDateTime: timestamp('invitation_date_time', {
       withTimezone: true,
       mode: 'date'
-    }).notNull(),
+    })
+      .notNull()
+      .defaultNow(),
     status: invitationStatusEnum('status').default('pending').notNull()
   },
-  table => ({
-    pk: primaryKey(table.watchlistId, table.recipientId, table.senderId),
-    uniqueSenderRecipientIdx: uniqueIndex('idx_unique_sender_recipient').on(
+  (table) => ({
+    uniqueInvite: uniqueIndex('idx_unique_invite').on(
+      table.watchlistId,
       table.senderId,
       table.recipientId
     )
@@ -326,29 +332,43 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'watchlist_invitation',
   'watchlist_invitation_accept',
   'watchlist_added_movie',
+  'watchlist_removed_movie',
+  'watchlist_delete',
+  'rating_like',
   'app_notification'
 ]);
 
-export const notificationsTable = pgTable('notifications', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .notNull()
-    .references(() => usersTable.id),
-  title: varchar('title', { length: 100 }).notNull(),
-  content: varchar('content', { length: 500 }).notNull(),
-  creationDateTime: timestamp('creation_date_time', {
-    withTimezone: true,
-    mode: 'date'
-  }).defaultNow(),
-  status: notificationStatusEnum('status').default('unread').notNull(),
-  type: notificationTypeEnum('type').notNull()
-});
+export const notificationsTable = pgTable(
+  'notifications',
+  {
+    id: serial('id').primaryKey(),
+    notifierId: integer('notifier_id')
+      .notNull()
+      .references(() => usersTable.id),
+    actorId: integer('actor_id').references(() => usersTable.id),
+    creationDateTime: timestamp('creation_date_time', {
+      withTimezone: true,
+      mode: 'date'
+    }).defaultNow(),
+    attributes: json('attributes').notNull(),
+    status: notificationStatusEnum('status').default('unread').notNull(),
+    seen: boolean('seen').default(false).notNull(),
+    type: notificationTypeEnum('type').notNull()
+  },
+  (table) => ({
+    notifierIdx: index('notifier_idx').on(table.notifierId)
+  })
+);
 
 export const notificationsRelations = relations(
   notificationsTable,
   ({ one }) => ({
-    user: one(usersTable, {
-      fields: [notificationsTable.userId],
+    notifier: one(usersTable, {
+      fields: [notificationsTable.notifierId],
+      references: [usersTable.id]
+    }),
+    actor: one(usersTable, {
+      fields: [notificationsTable.actorId],
       references: [usersTable.id]
     })
   })
@@ -367,25 +387,7 @@ export const eventsTable = pgTable(
     eventData: json('event_data'),
     movieId: integer('movie_id').references(() => moviesTable.id)
   },
-  table => ({
+  (table) => ({
     userIdx: index('idx_user').on(table.userId)
   })
 );
-
-// SELECT m.title, m_genres.*, rating.*
-// FROM movies m
-// LEFT JOIN LATERAL (
-//   SELECT array_to_json(array_agg(json_build_object('id', g.id, 'name', g.name))) as genres
-//   FROM movie_genres mg
-//   INNER JOIN genres g ON mg.genre_id = g.id
-//   WHERE mg.movie_id = m.id
-//   GROUP BY mg.movie_id
-// ) AS m_genres ON TRUE
-// LEFT JOIN LATERAL (
-// 	SELECT
-// 	  AVG(rating) as rating,
-// 	  COUNT(rating) as votes
-// 	FROM ratings
-// 	WHERE movie_id = m.id
-// ) as rating ON TRUE
-// where rating.rating is not null;

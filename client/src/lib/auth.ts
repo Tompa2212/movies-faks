@@ -1,51 +1,62 @@
-import NextAuth, { AuthOptions, getServerSession } from 'next-auth';
+// import NextAuth, { AuthOptions, getServerSession } from 'next-auth';
+// import CredentialsProvider from 'next-auth/providers/credentials';
 
-import GoogleProvider from 'next-auth/providers/google';
-import { pool } from '@/db';
-import PostgresAdapter from './auth-adapter';
+// import api from './create-fetcher';
+// import { AxiosError } from 'axios';
 
-const authOptions: AuthOptions = {
-  adapter: PostgresAdapter(pool),
-  pages: {
-    signIn: '/sign-in'
-  },
-  session: {
-    strategy: 'jwt'
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
-    })
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = +user.id;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
-        token.username = user.username;
-      }
+// const authOptions: AuthOptions = {
+//   pages: {
+//     signIn: '/sign-in'
+//   },
+//   session: {
+//     strategy: 'jwt'
+//   },
+//   providers: [
+//     CredentialsProvider({
+//       name: 'Credentials',
+//       credentials: {
+//         email: { email: 'Email', type: 'email' },
+//         password: { label: 'Password', type: 'password' }
+//       },
+//       async authorize(credentials) {
+//         try {
+//           const {
+//             data: { user, ...rest }
+//           } = await api.post('/auth/login', credentials);
 
-      return token;
-    },
-    async session({ token, session }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.firstName = token.firstName;
-        session.user.lastName = token.lastName;
-        session.user.username = token.username;
-      }
+//           return { ...user, ...rest };
+//         } catch (error) {
+//           if (error instanceof AxiosError) {
+//             throw new Error(error.response?.data.description);
+//           }
+//           return null;
+//         }
+//       }
+//     })
+//   ],
+//   callbacks: {
+//     async jwt({ token, user }) {
+//       if (user) {
+//         return { ...user, ...token };
+//       }
 
-      return session;
-    },
-    redirect() {
-      return '/';
-    }
-  }
-};
+//       return { ...token };
+//     },
+//     async session({ token, session }) {
+//       if (session.user) {
+//         session.user.id = token.id;
+//         session.user.email = token.email;
+//         session.user.firstName = token.firstName;
+//       }
 
-export default NextAuth(authOptions);
+//       session.accessToken = token.accessToken;
+//       session.refreshToken = token.refreshToken;
 
-export const getAuthSession = () => getServerSession(authOptions);
+//       return session;
+//     }
+//   }
+// };
+
+// export default NextAuth(authOptions);
+
+// export const getAuthSession = () => getServerSession(authOptions);

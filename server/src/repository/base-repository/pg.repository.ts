@@ -16,7 +16,7 @@ export function pgRepository<T extends AnyObject>({
   const columnAlias = aliasMapper;
 
   const cols = (...args: Array<keyof T>) =>
-    args.map(key => `${aliasMapper(key)} AS "${String(key)}"`).join(', ');
+    args.map((key) => `${aliasMapper(key)} AS "${String(key)}"`).join(', ');
 
   const allColumns = Object.entries(mapping).reduce(
     (acc, [key, value]: [string, ColumnData]) => {
@@ -48,7 +48,6 @@ export function pgRepository<T extends AnyObject>({
       [id]
     );
 
-    console.log(res.rows);
     return res.rows[0] ?? null;
   };
 

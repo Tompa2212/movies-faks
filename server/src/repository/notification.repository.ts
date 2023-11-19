@@ -1,50 +1,47 @@
 import { pgRepository } from './base-repository/pg.repository';
-import { pool } from '../db';
-import { Notification } from '../types/Notification';
+import { db, pool } from '../db';
+import { NewNotification, Notification } from '../types/Notification';
+import { notificationsTable } from '../db/schema';
 
 function makeNotificationRepository() {
   const base = pgRepository<Notification>({
-    table: 'users',
+    table: 'notifications',
     primaryKey: 'id',
     mapping: {
       id: 'id',
-      userId: 'user_id',
-      title: 'title',
-      content: 'conent',
+      notifierId: 'notifier_id',
+      actorId: 'actor_id',
+      attributes: 'attributes',
       creationDateTime: 'creation_date_time',
       status: 'status',
+      seen: 'seen',
       type: 'type'
     }
   });
 
   const findNotificationyByUserId = async (userId: number) => {
-    const res = await pool.query(
+    const res = await pool.query<Notification>(
       `
     select
-      array_to_json(
-        array_agg(
-          json_build_object(
-            'id', id,
-            'title', title,
-            'content', content,
-            'createdAt', creation_date_time
-            'status', status)
-          order by creation_date_time desc
-        )
-      ) as notifications,
-      COUNT(*) FILTER (WHERE status = 'unread') AS "unreadCount"
-    from notifications
-    where user_id = 5874
-    group by user_id;`,
+      ${base.allColumns}
+    from ${base.table}
+    where  notifier_id = $1`,
       [userId]
     );
 
     return res.rows;
   };
 
+  const insertManyNotifications = async (data: NewNotification[]) => {
+    const res = await db.insert(notificationsTable).values(data).returning();
+
+    return res[0];
+  };
+
   return {
     ...base,
-    findNotificationyByUserId
+    findNotificationyByUserId,
+    insertManyNotifications
   };
 }
 

@@ -1,23 +1,8 @@
 import Icon from '@/components/ui/Icons';
 import { getTop250Movies } from '@/data/movies/top-250';
+import { createVotesLabel } from '@/utils/create-votes-label';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const createVotesLabel = (votes: number | null) => {
-  if (!votes) {
-    return 0;
-  }
-
-  if (votes < 1000) {
-    return votes;
-  }
-
-  if (votes >= 1000 && votes < 1_000_000) {
-    return `${Math.floor(votes / 1000)}K`;
-  }
-
-  return `${Math.floor(votes / 10000)}M`;
-};
 
 const createDurationLabel = (duration: number | null) => {
   if (!duration) {
@@ -38,7 +23,7 @@ export default async function Top250() {
   const movies = await getTop250Movies();
 
   return (
-    <main className="flex min-h-screen flex-col justify-between">
+    <main className="flex flex-col justify-between min-h-screen">
       <header className="mb-6">
         <h1 className="text-3xl">Top 250 Movies</h1>
       </header>
@@ -50,7 +35,7 @@ export default async function Top250() {
           return (
             <div
               key={movie.id}
-              className=" flex flex-col rounded-lg border border-slate-300 overflow-hidden"
+              className="flex flex-col overflow-hidden border rounded-lg  border-slate-300"
             >
               <div className="h-[300px]">
                 <Image
@@ -65,7 +50,7 @@ export default async function Top250() {
                 />
               </div>
 
-              <div className="px-4 py-4 grid gap-2 flex-1">
+              <div className="grid flex-1 gap-2 px-4 py-4">
                 <div className="flex items-center gap-2">
                   <Icon
                     size={16}

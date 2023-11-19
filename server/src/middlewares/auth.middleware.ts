@@ -15,8 +15,9 @@ export const isAuthenticated = (
     try {
       const user = verifyAccessToken(token);
       req.user = user;
+      return next();
     } catch (error) {
-      throw new UnauthenticatedError();
+      // throw new UnauthenticatedError();
     }
   }
 

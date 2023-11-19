@@ -37,13 +37,13 @@ const deleteUser = async (id: number) => {
   return omit(deletedUser, 'password');
 };
 
-const searchUsersByUsername = async (username: string) => {
-  return userRepository.findManyByUsername(username);
+const searchUsersByEmail = async (email: string) => {
+  return userRepository.findManyByEmail(email);
 };
 
 export const userService = {
   getUser,
   updateUser,
   deleteUser,
-  searchUsersByUsername
+  searchUsersByEmail
 };

@@ -1,19 +1,19 @@
-import axios from 'axios';
-import { baseApiUrl } from '../config/base-url.config';
+import 'server-only';
 import { cookies } from 'next/headers';
+import axiosInstance from './axios-instance';
 
-const api = axios.create({
-  baseURL: baseApiUrl
-});
-
-api.interceptors.request.use(config => {
+axiosInstance.interceptors.request.use(async (config) => {
   if (typeof window === 'undefined') {
     config.headers['Cookie'] = cookies().toString();
-  } else {
-    config.withCredentials = true;
   }
 
   return config;
 });
 
-export default api;
+axiosInstance.interceptors.response.use(async (response) => {
+  const data = response.data;
+
+  return { ...response, ...data };
+});
+
+export default axiosInstance;

@@ -1,12 +1,15 @@
 import api from '@/lib/create-fetcher';
-import { WathclistListDto } from '@/types/dto-types/WatchlistDto';
+import { WathclistListItem } from '@/types/dto-types/WatchlistDto';
+import { cache } from 'react';
 
-export default async function getUserWatchlists(userId: number) {
-  const {
-    data: { data }
-  } = await api.get<{ data: WathclistListDto[] }>(
+export const revalidate = 10;
+
+const getUserWatchlists = cache(async (userId: number) => {
+  const { data } = await api.get<WathclistListItem[]>(
     `/users/${userId}/watchlists`
   );
 
   return data;
-}
+});
+
+export default getUserWatchlists;

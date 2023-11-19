@@ -16,6 +16,9 @@ export const updateBasicUserInfoSchema = z.object({
     })
     .strict(),
   params: z.object({
-    id: z.preprocess(a => parseInt(z.string().parse(a)), z.number().positive())
+    id: z.preprocess(
+      (a) => parseInt(z.string().parse(a)),
+      z.number().positive()
+    )
   })
 });

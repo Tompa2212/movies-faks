@@ -1,16 +1,21 @@
+import { Genre } from '../Genre';
 import { Movie } from '../Movie';
 import { User } from '../User';
 
-export interface WathclistListDto {
+type MovieWithGenres = Movie & { genres: Genre[] };
+
+type WatchlistMovieInfo = { addedBy: number; dateAdded: string };
+
+export interface WathclistListItem {
   id: number;
   title: string;
-  owner_id: number;
-  isOwner: boolean;
-  movies: Pick<Movie, 'id' | 'title' | 'poster' | 'rating' | 'votes'>[];
+  ownerId: number;
+  movies: (Pick<Movie, 'id' | 'title' | 'poster' | 'rating'> &
+    WatchlistMovieInfo)[];
   users: Pick<User, 'id' | 'firstName' | 'lastName' | 'image' | 'username'>[];
 }
 
-export interface WatchlistDto {
+export interface Watchlist {
   id: number;
   title: string;
   owner_id: number;

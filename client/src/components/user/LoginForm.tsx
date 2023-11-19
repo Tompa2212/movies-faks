@@ -1,18 +1,24 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from '../ui/Button';
-import { login } from '@/actions/login';
+import login from '@/actions/login';
 import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useSession } from '@/providers/SessionProvider';
+import { useRouter } from 'next/navigation';
 
 const Form = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
+  const [, setSession] = useSession();
+  const router = useRouter();
 
   const handleLogin = async (data: FormData) => {
     try {
-      await login(data);
+      const user = await login(data);
+      setSession({ user });
+      router.push('/');
     } catch (error: any) {
       toast({
         title: 'Authorization error',
@@ -29,7 +35,7 @@ const Form = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const UserAuthForm = () => {
+const LoginForm = () => {
   const status = useFormStatus();
 
   return (
@@ -57,4 +63,4 @@ const UserAuthForm = () => {
   );
 };
 
-export default UserAuthForm;
+export default LoginForm;

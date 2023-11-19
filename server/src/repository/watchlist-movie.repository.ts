@@ -8,7 +8,7 @@ function makeWatchlistMovieRepository() {
     mapping: {
       watchlistId: 'watchlist_id',
       movieId: 'movie_id',
-      order: 'order',
+      dateAdded: 'date_added',
       addedBy: 'added_by'
     }
   });
@@ -21,16 +21,11 @@ function makeWatchlistMovieRepository() {
     const res = await pool.query(
       `
     INSERT INTO 
-    ${base.table} (watchlist_id, movie_id, added_by, "order")
-    VALUES ($1, $2, $3, (select
-                        MAX(wm."order") + 1
-                    from
-                    watchlist_movies wm
-                    where
-                    watchlist_id = $4))
+    ${base.table} (watchlist_id, movie_id, added_by)
+    VALUES ($1, $2, $3)
     RETURNING ${base.allColumns}
     `,
-      [watchlistId, movieId, userId, watchlistId]
+      [watchlistId, movieId, userId]
     );
 
     return res.rows;

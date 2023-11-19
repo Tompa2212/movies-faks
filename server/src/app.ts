@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import 'express-async-errors';
+import { connectAll } from './config/messaging.config';
 import cors from 'cors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -14,6 +15,7 @@ import { isAuthenticated } from './middlewares/auth.middleware';
 import { userRouter } from './routes/user.router';
 import { movieRouter } from './routes/movie.router';
 import { watchlistRouter } from './routes/watchlist.router';
+import { watchlistInvitationRouter } from './routes/watchlist-invitation.router';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -53,6 +55,11 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/movies', movieRouter);
 app.use('/api/v1/users', isAuthenticated, userRouter);
 app.use('/api/v1/watchlists', isAuthenticated, watchlistRouter);
+app.use(
+  '/api/v1/watchlist-invitations',
+  isAuthenticated,
+  watchlistInvitationRouter
+);
 
 app.use(errorHandler);
 
@@ -60,6 +67,7 @@ const start = async () => {
   let conn;
   try {
     conn = await getConnect();
+    await connectAll();
     app.listen(PORT, () => {
       console.log(`listening on port ${PORT}...`);
     });

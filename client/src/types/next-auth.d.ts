@@ -1,16 +1,13 @@
 import type { Session, User } from 'next-auth';
 import type { JWT as authJwt } from 'next-auth/jwt';
 
-type UserId = string;
-
 declare module 'next-auth/jwt' {
   interface JWT extends authJwt {
     id: number;
     email: string;
-    username?: string | null;
-    firstName?: string;
-    lastName?: string | null;
-    image: string | null;
+    firstName: string;
+    accessToken: string;
+    refreshToken: string;
   }
 }
 
@@ -20,16 +17,18 @@ declare module 'next-auth' {
       id: number;
       email: string;
       username?: string | null;
-      firstName?: string;
-      lastName?: string | null;
-      image: string | null;
+      firstName: string;
+      image?: string | null;
     };
+    accessToken: string;
+    refreshToken: string;
   }
 
   interface User {
     id: number;
-    firstName?: string;
-    lastName?: string | null;
-    username?: string | null;
+    email: string;
+    accessToken: string;
+    refreshToken: string;
+    firstName: string;
   }
 }
