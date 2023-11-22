@@ -214,7 +214,12 @@ const data = [
 ];
 
 export default async function Home() {
-  const { top250, top250Tv, newReleases, trending } = await getFeaturedTitles();
+  const {
+    top250 = [],
+    top250Tv = [],
+    newReleases = [],
+    trending = []
+  } = await getFeaturedTitles();
   const session = await getAuthSession();
 
   return (

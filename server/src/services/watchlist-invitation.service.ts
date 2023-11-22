@@ -5,6 +5,7 @@ import { watchlistUserRepository } from '../repository/watchlist-user.repository
 import { NewWatchlistInvitation } from '../types/Watchlist';
 import _ from 'lodash';
 import { watchlistService } from './watchlist.service';
+import BadRequestError from '../errors/bad-request';
 
 const inviteUsers = async (
   senderId: number,
@@ -47,13 +48,20 @@ const inviteUsers = async (
   return invites;
 };
 
-const acceptInvite = async (invitationId: number) => {
-  const invitation = await watchlistInviteRepository.deleteById(invitationId);
+const acceptInvite = async (invitationId: number, userId: number) => {
+  const invitation = await watchlistInviteRepository.findById(invitationId);
 
   if (!invitation) {
     throw new NotFoundError();
   }
 
+  if (invitation.recipientId !== userId) {
+    throw new BadRequestError({
+      description: "Can't accept invites from other users"
+    });
+  }
+
+  await watchlistInviteRepository.deleteById(invitationId);
   await watchlistService.addUsers(invitation.watchlistId, [
     invitation.recipientId
   ]);
@@ -64,7 +72,31 @@ const acceptInvite = async (invitationId: number) => {
   });
 };
 
+const declineInvite = async (invitationId: number, userId: number) => {
+  const invitation = await watchlistInviteRepository.findById(invitationId);
+
+  if (!invitation) {
+    throw new NotFoundError();
+  }
+
+  if (invitation.recipientId !== userId) {
+    throw new BadRequestError({
+      description: "Can't accept invites from other users"
+    });
+  }
+
+  await watchlistInviteRepository.deleteById(invitationId);
+};
+
+const getUserWatchlistInvitations = async (userId: number) => {
+  const invitations = await watchlistInviteRepository.findByRecipientId(userId);
+
+  return invitations;
+};
+
 export const watchlistInvitationService = {
+  getUserWatchlistInvitations,
   inviteUsers,
-  acceptInvite
+  acceptInvite,
+  declineInvite
 };

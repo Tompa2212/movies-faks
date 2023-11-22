@@ -5,6 +5,7 @@ import BookmarkIcon from './BookmarkIcon';
 import getUserWatchlists from '@/data/get-user-watchlists';
 import { getAuthSession } from '@/lib/get-session';
 import BookmarkedToggleAction from './BookmarkedToggleAction';
+import { WathclistListItem } from '@/types/dto-types/WatchlistDto';
 
 type BookmarkedToggleProps = {
   isBookmarked: boolean;
@@ -18,7 +19,12 @@ const BookmarkedToggle = async ({
   className
 }: BookmarkedToggleProps) => {
   const session = await getAuthSession();
-  const userWatchlists = await getUserWatchlists(session?.user.id!);
+
+  let userWatchlists: WathclistListItem[] = [];
+
+  if (session) {
+    userWatchlists = await getUserWatchlists(session?.user.id!);
+  }
 
   return (
     <BookmarkedToggleAction

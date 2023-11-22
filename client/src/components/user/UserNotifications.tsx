@@ -35,8 +35,14 @@ const timeAgoDelta = (dateStr: string) => {
 };
 
 const UserNotifications = ({ userId }: { userId: number }) => {
-  const { notifications, error, isLoading, markAllSeen, markNotificationSeen } =
-    useUserNotifications(userId);
+  const {
+    notifications,
+    error,
+    isLoading,
+    markAllSeen,
+    markNotificationRead,
+    onSelectAction
+  } = useUserNotifications(userId);
 
   if (error) {
     return <Icon name="Bell" />;
@@ -74,7 +80,7 @@ const UserNotifications = ({ userId }: { userId: number }) => {
           ) : null}
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-[250px]">
+      <DropdownMenuContent className="xs:min-w-[250px]">
         <DropdownMenuLabel className="flex items-center justify-between">
           <h3 className="text-base">Notifications</h3>
           <Link
@@ -93,18 +99,18 @@ const UserNotifications = ({ userId }: { userId: number }) => {
             {notifications.map((notification: any) => (
               <DropdownMenuItem
                 onSelect={() => {
-                  markNotificationSeen(notification.id);
+                  onSelectAction(notification.id);
                 }}
                 key={notification.id}
-                className="p-0 border-b-2 border-slate-100"
+                className="text-sm max-w-xs p-0 [&:not(:last-child)]:border-b-2 border-slate-100"
               >
                 <div className="w-full p-2">
-                  <h5 className="mb-1 text-base font-semibold">
-                    {notification.title}
+                  <h5 className="mb-1 font-semibold">
+                    {notification.attributes.title}
                   </h5>
-                  <p className="mb-1">{notification.content}</p>
+                  <p className="mb-1">{notification.attributes.message}</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm">
+                    <p className="text-sm text-gray-400">
                       {timeAgoDelta(notification.creationDateTime)}
                     </p>
                     {notification.status === 'unread' ? (

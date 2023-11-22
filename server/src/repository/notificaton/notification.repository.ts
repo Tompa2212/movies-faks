@@ -1,7 +1,7 @@
-import { pgRepository } from './base-repository/pg.repository';
-import { db, pool } from '../db';
-import { NewNotification, Notification } from '../types/Notification';
-import { notificationsTable } from '../db/schema';
+import { pgRepository } from '../base-repository/pg.repository';
+import { db, pool } from '../../db';
+import { NewNotification, Notification } from '../../types/Notification';
+import { notificationsTable } from '../../db/schema';
 
 function makeNotificationRepository() {
   const base = pgRepository<Notification>({
@@ -25,7 +25,8 @@ function makeNotificationRepository() {
     select
       ${base.allColumns}
     from ${base.table}
-    where  notifier_id = $1`,
+    where notifier_id = $1
+    order by creation_date_time desc`,
       [userId]
     );
 

@@ -7,6 +7,7 @@ import BadRequestError from '../errors/bad-request';
 import ForbiddenError from '../errors/forbidden';
 import { watchlistService } from '../services/watchlist.service';
 import { notificationService } from '../services/notification.service';
+import { watchlistInvitationService } from '../services/watchlist-invitation.service';
 
 const getUser = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
@@ -106,6 +107,20 @@ const markAllUserNotificationsSeen = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).end();
 };
 
+const getUserInvitations = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (parseInt(id) !== req.user.id) {
+    throw new ForbiddenError();
+  }
+
+  const data = await watchlistInvitationService.getUserWatchlistInvitations(
+    parseInt(id)
+  );
+
+  return res.status(StatusCodes.OK).json({ data });
+};
+
 export const userController = {
   getUser,
   deleteUser,
@@ -113,5 +128,6 @@ export const userController = {
   searchUsersByEmail,
   getUserWatchlists,
   getUserNotifications,
-  markAllUserNotificationsSeen
+  markAllUserNotificationsSeen,
+  getUserInvitations
 };

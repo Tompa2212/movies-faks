@@ -1,4 +1,4 @@
-import { notificationRepository } from '../repository/notification.repository';
+import { notificationRepository } from '../repository/notificaton/notification.repository';
 import '../listeners/notification.listener';
 import { NewNotification } from '../types/Notification';
 import NotFoundError from '../errors/not-found';

@@ -8,7 +8,7 @@ import { createServer } from 'node:http';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.router';
 import errorHandler from './middlewares/error.middleware';
-import { getConnect } from './db';
+import { getConnect, pool } from './db';
 import { sessionMiddleware } from './middlewares/session.middleware';
 import { isAuthenticated } from './middlewares/auth.middleware';
 import { userRouter } from './routes/user.router';
@@ -79,6 +79,5 @@ io.on('connection', (socket) => {
   const user = req.session.user;
 
   socket.join(user.id.toString());
-
   console.log(socket.rooms);
 });

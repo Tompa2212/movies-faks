@@ -9,19 +9,23 @@ export const getAuthSession = async (): Promise<{
 } | null> => {
   const c = cookies().toString();
 
-  const res = await fetch(`${baseApiUrl}/auth/session`, {
-    credentials: 'include',
-    headers: {
-      Cookie: c
-    },
-    cache: 'no-store'
-  });
+  try {
+    const res = await fetch(`${baseApiUrl}/auth/session`, {
+      credentials: 'include',
+      headers: {
+        Cookie: c
+      },
+      cache: 'no-store'
+    });
 
-  if (!res.ok) {
+    if (!res.ok) {
+      return null;
+    }
+
+    const { user } = await res.json();
+
+    return { user };
+  } catch (error) {
     return null;
   }
-
-  const { user } = await res.json();
-
-  return { user };
 };

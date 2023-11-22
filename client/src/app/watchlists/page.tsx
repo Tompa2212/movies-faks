@@ -30,7 +30,11 @@ const Page = async () => {
                 <Icon className="w-4 h-4 ml-2" name="Plus" />
               </Button>
             </CreateWatchlistSheet>
-            <InviteToWatchlistSheet watchlists={watchlists}>
+            <InviteToWatchlistSheet
+              watchlists={watchlists.filter(
+                (w) => w.ownerId === session?.user.id
+              )}
+            >
               <Button variant="subtle" className="flex-shrink-0">
                 Invite users <Icon className="w-4 h-4 ml-2" name="UserCheck" />
               </Button>

@@ -43,10 +43,6 @@ const RateMovieAction = ({
   const api = useApi();
   const { toast } = useToast();
 
-  if (!session) {
-    router.push('/sign-in');
-  }
-
   const onSuccess = () => {
     router.refresh();
     setDialogOpen(false);
@@ -85,7 +81,13 @@ const RateMovieAction = ({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <Button
-        onClick={() => setDialogOpen(true)}
+        onClick={() => {
+          if (session) {
+            setDialogOpen(true);
+          } else {
+            router.push('/sign-in');
+          }
+        }}
         variant="ghost"
         className={className}
       >

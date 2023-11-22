@@ -7,8 +7,6 @@ import { Badge } from '../ui/Badge';
 import { fallbackMovieImg } from '@/config/base-url.config';
 
 const MovieContent = ({ movie }: { movie: MovieDto }) => {
-  console.log(movie);
-
   return (
     <div className="flex flex-wrap gap-6">
       <div className="relative flex-shrink-0 overflow-hidden">

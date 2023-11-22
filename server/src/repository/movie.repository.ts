@@ -43,12 +43,6 @@ function makeMovieRepository() {
       }
     }
 
-    console.log(`SELECT 
-    ${base.allColumns}
-  FROM ${base.table} 
-  WHERE title ILIKE $1 || '%'
-  ${paginationSql}
-  `);
     const res = await pool.query<Movie>(
       `SELECT 
          ${base.allColumns}

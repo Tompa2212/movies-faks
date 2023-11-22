@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes';
 import { inviteUsersToWatchlistsSchema } from '../schema/watchlist-invitation.schema';
 import { watchlistInvitationService } from '../services/watchlist-invitation.service';
 import { zParse } from '../utils/z-parse';
@@ -15,6 +16,24 @@ const inviteUsers = async (req: Request, res: Response) => {
   return res.send('');
 };
 
+const acceptInvite = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  await watchlistInvitationService.acceptInvite(parseInt(id), req.user.id);
+
+  return res.status(StatusCodes.OK).end();
+};
+
+const declineInvite = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  await watchlistInvitationService.declineInvite(parseInt(id), req.user.id);
+
+  return res.status(StatusCodes.OK).end();
+};
+
 export const watchlistInvitationController = {
-  inviteUsers
+  inviteUsers,
+  acceptInvite,
+  declineInvite
 };

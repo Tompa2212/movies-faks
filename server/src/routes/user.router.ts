@@ -18,3 +18,5 @@ userRouter.post(
   '/:id/notifications/seen',
   userController.markAllUserNotificationsSeen
 );
+
+userRouter.get('/:id/invites', userController.getUserInvitations);

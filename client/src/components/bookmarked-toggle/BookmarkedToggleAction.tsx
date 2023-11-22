@@ -18,6 +18,7 @@ import { WathclistListItem } from '@/types/dto-types/WatchlistDto';
 import { SelectValue } from '../ui/Select';
 import SelectField from '../ui/SelectField';
 import { AxiosError } from 'axios';
+import { useSession } from '@/providers/SessionProvider';
 
 type Props = {
   children: React.ReactNode;
@@ -48,6 +49,7 @@ const BookmarkedToggleAction = ({
   const { toast } = useToast();
   const api = useApi();
   const router = useRouter();
+  const [session] = useSession();
 
   const actionType = isBookmarked ? 'delete' : 'add';
 
@@ -94,7 +96,16 @@ const BookmarkedToggleAction = ({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(open) => {
+        if (session) {
+          setOpen(open);
+        } else {
+          router.push('/sign-in');
+        }
+      }}
+    >
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent>
         <SheetHeader>

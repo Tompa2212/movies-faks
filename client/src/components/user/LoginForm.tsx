@@ -18,7 +18,7 @@ const Form = ({ children }: { children: React.ReactNode }) => {
     try {
       const user = await login(data);
       setSession({ user });
-      router.push('/');
+      router.refresh();
     } catch (error: any) {
       toast({
         title: 'Authorization error',

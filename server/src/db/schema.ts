@@ -341,7 +341,7 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'watchlist_delete',
   'rating_like',
   'app_notification'
-]);
+] as const);
 
 export const notificationsTable = pgTable(
   'notifications',
