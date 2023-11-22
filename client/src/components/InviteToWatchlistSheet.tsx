@@ -68,8 +68,9 @@ const InviteToWatchlistSheet = ({
     }
 
     try {
-      await api.post(`/watchlists/${watchlist}/users`, {
-        users: users.map((u) => Number(u.value))
+      await api.post(`/watchlist-invitations`, {
+        userIds: users.map((u) => Number(u.value)),
+        watchlistId: Number(watchlist)
       });
 
       setFormData({ ...initialFormState });

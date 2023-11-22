@@ -17,14 +17,14 @@ interface UserAccountNavProps {
   user: Pick<User, 'image' | 'email' | 'firstName' | 'id'>;
 }
 
-const UserAccountNav = ({ user }: UserAccountNavProps) => {
+const UserAccountNav = async ({ user }: UserAccountNavProps) => {
   return (
     <div className="flex items-center gap-6">
       <Link href="/watchlists" className="inline-flex items-center gap-1">
         <Icon name="BookmarkPlus" className="inline-block" />
         <span className="font-semibold">Watchlist</span>
       </Link>
-      <UserNotifications />
+      <UserNotifications userId={user.id} />
       <DropdownMenu>
         <DropdownMenuTrigger>
           <UserAvatar user={user} className="w-8 h-8" />

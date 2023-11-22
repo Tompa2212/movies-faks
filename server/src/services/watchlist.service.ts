@@ -78,7 +78,7 @@ const addMovie = async (
     throw new ForbiddenError();
   }
 
-  const movie = await watchlistMovieRepository.addMovieToWatchlist(
+  const movie = await watchlistMovieRepository.insertMovieWatchlist(
     watchlistId,
     movieId,
     authUser.id

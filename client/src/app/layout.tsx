@@ -4,9 +4,9 @@ import Navbar from '@/components/Navbar';
 import { cn } from '@/lib/utils';
 import { montserrat } from '@/components/ui/fonts';
 import { Toaster } from '@/components/ui/Toaster';
-import { TooltipProvider } from '@/components/ui/Tooltip';
 import { SessionProvider } from '@/providers/SessionProvider';
 import { getAuthSession } from '@/lib/get-session';
+import Providers from '@/providers/Providers';
 
 export const metadata: Metadata = {
   title: 'Movies Watchlist',
@@ -30,13 +30,13 @@ export default async function RootLayout({
     >
       <body className="min-h-screen pt-12 antialiased bg-slate-50">
         <SessionProvider session={session}>
-          <TooltipProvider>
+          <Providers>
             <Navbar />
-            <div className="h-full px-4 pt-12 mx-auto sm:container max-w-7xl">
+            <div className="h-full px-4 pt-12 pb-8 mx-auto sm:container max-w-7xl">
               {children}
             </div>
             <Toaster />
-          </TooltipProvider>
+          </Providers>
         </SessionProvider>
       </body>
     </html>

@@ -1,6 +1,7 @@
 import { notificationRepository } from '../repository/notification.repository';
 import '../listeners/notification.listener';
 import { NewNotification } from '../types/Notification';
+import NotFoundError from '../errors/not-found';
 
 const getUserNotifications = async (userId: number) => {
   const notifications = await notificationRepository.findNotificationyByUserId(
@@ -22,7 +23,31 @@ const createNotifications = async (data: NewNotification[]) => {
   return notification;
 };
 
+const markUsersNotificationsSeen = async (userId: number) => {
+  await notificationRepository.markUsersNotificationsSeen(userId);
+
+  return true;
+};
+
+const markUserNotificationRead = async (
+  notificationId: number,
+  userId: number
+) => {
+  const notification = await notificationRepository.markUserNotificationRead(
+    notificationId,
+    userId
+  );
+
+  if (!notification) {
+    throw new NotFoundError();
+  }
+
+  return notification;
+};
+
 export const notificationService = {
   createNotifications,
-  getUserNotifications
+  getUserNotifications,
+  markUsersNotificationsSeen,
+  markUserNotificationRead
 };

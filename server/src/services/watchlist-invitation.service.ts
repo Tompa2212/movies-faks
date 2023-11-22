@@ -1,7 +1,9 @@
 import { inAppNotificationMessagePublisher } from '../config/messaging.config';
 import NotFoundError from '../errors/not-found';
 import { watchlistInviteRepository } from '../repository/watchlist-invitation.repository';
+import { watchlistUserRepository } from '../repository/watchlist-user.repository';
 import { NewWatchlistInvitation } from '../types/Watchlist';
+import _ from 'lodash';
 import { watchlistService } from './watchlist.service';
 
 const inviteUsers = async (
@@ -9,7 +11,16 @@ const inviteUsers = async (
   watchlistId: number,
   userIds: number[]
 ) => {
-  const insertValues: NewWatchlistInvitation[] = userIds.map((id) => ({
+  const watchlistUsers = await watchlistUserRepository.findWatchlistUsers(
+    watchlistId
+  );
+
+  const newUsers = _.difference(
+    userIds,
+    watchlistUsers.map((u) => u.userId)
+  );
+
+  const insertValues: NewWatchlistInvitation[] = newUsers.map((id) => ({
     watchlistId,
     recipientId: id,
     senderId

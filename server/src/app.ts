@@ -4,25 +4,26 @@ import 'express-async-errors';
 import { connectAll } from './config/messaging.config';
 import cors from 'cors';
 import express from 'express';
+import { createServer } from 'node:http';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.router';
 import errorHandler from './middlewares/error.middleware';
 import { getConnect } from './db';
-import RedisStore from 'connect-redis';
-import session from 'express-session';
-import redisClient from './utils/redis-client';
+import { sessionMiddleware } from './middlewares/session.middleware';
 import { isAuthenticated } from './middlewares/auth.middleware';
 import { userRouter } from './routes/user.router';
 import { movieRouter } from './routes/movie.router';
 import { watchlistRouter } from './routes/watchlist.router';
 import { watchlistInvitationRouter } from './routes/watchlist-invitation.router';
+import { createSocketServer } from './config/socket.config';
+import { SocketIncomingMessage } from './types/socket-http';
+import { notificationRouter } from './routes/notification.router';
+import { featuredRouter } from './routes/featured.router';
+import { ratingRouter } from './routes/rating.router';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
-
-const redisStore = new RedisStore({
-  client: redisClient
-});
+const httpServer = createServer(app);
 
 app.set('trust proxy', 1);
 app.use(
@@ -33,21 +34,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-app.use(
-  session({
-    name: 'sessionid',
-    store: redisStore,
-    resave: true,
-    saveUninitialized: false,
-    secret: process.env.SESSION_SECRET!,
-    cookie: {
-      httpOnly: true,
-      signed: true,
-      maxAge: 15 * 60 * 1000
-      // secure: true
-    }
-  })
-);
+app.use(sessionMiddleware);
 app.get('/', (_, res) => {
   return res.send('<h1>Movies API</h1>');
 });
@@ -60,6 +47,9 @@ app.use(
   isAuthenticated,
   watchlistInvitationRouter
 );
+app.use('/api/v1/notifications', isAuthenticated, notificationRouter);
+app.use('/api/v1/featured', featuredRouter);
+app.use('/api/v1/ratings', isAuthenticated, ratingRouter);
 
 app.use(errorHandler);
 
@@ -68,7 +58,7 @@ const start = async () => {
   try {
     conn = await getConnect();
     await connectAll();
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`listening on port ${PORT}...`);
     });
   } catch (error) {
@@ -79,5 +69,16 @@ const start = async () => {
     }
   }
 };
-
 start();
+
+const io = createSocketServer(httpServer);
+
+io.on('connection', (socket) => {
+  const req = socket.request as SocketIncomingMessage;
+
+  const user = req.session.user;
+
+  socket.join(user.id.toString());
+
+  console.log(socket.rooms);
+});

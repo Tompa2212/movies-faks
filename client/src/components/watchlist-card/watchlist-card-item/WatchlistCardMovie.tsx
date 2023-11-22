@@ -5,6 +5,7 @@ import { fallbackMovieImg } from '@/config/base-url.config';
 import Icon from '@/components/ui/Icons';
 
 import WatchlistMovieDeleteButton from './WatchlistMovieDeleteButton';
+import Link from 'next/link';
 
 const WatchlistCardMovie = ({
   movie
@@ -16,7 +17,7 @@ const WatchlistCardMovie = ({
       key={movie.id}
       className="flex-shrink-0 overflow-hidden rounded max-w-[170px]"
     >
-      <div className="grid items-center grid-cols-1 grid-rows-1 isolate group">
+      <div className="grid items-center grid-cols-1 grid-rows-1 mb-1 isolate group">
         <Image
           className="h-[170px] w-[170px] object-cover -z-10 col-span-full row-span-full"
           src={movie.poster || fallbackMovieImg}
@@ -37,9 +38,13 @@ const WatchlistCardMovie = ({
           </div>
         </div>
       </div>
-      <p title={movie.title} className="line-clamp-2">
+      <Link
+        href={`/titles/${movie.id}`}
+        title={movie.title}
+        className="line-clamp-2 hover:underline underline-offset-4"
+      >
         {movie.title}
-      </p>
+      </Link>
     </div>
   );
 };

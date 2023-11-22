@@ -8,7 +8,7 @@ const WatchlistCardList = ({
   watchlists: WathclistListItem[];
 }) => {
   return (
-    <div>
+    <div className="flex-1">
       {watchlists.map((watchlist) => (
         <WatchlistCard key={watchlist.id} item={watchlist} />
       ))}

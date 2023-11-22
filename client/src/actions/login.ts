@@ -4,7 +4,6 @@ import api from '@/lib/create-fetcher';
 import { AxiosError } from 'axios';
 import { parse } from 'cookie';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 const login = async (formData: FormData) => {
   const { email, password } = Object.fromEntries(formData.entries());

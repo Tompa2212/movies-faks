@@ -13,7 +13,8 @@ import {
   uniqueIndex,
   boolean,
   bigint,
-  decimal
+  decimal,
+  bigserial
 } from 'drizzle-orm/pg-core';
 
 // Users
@@ -161,6 +162,7 @@ export const moviesToGenresRelations = relations(
 export const ratingsTable = pgTable(
   'ratings',
   {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
     userId: integer('user_id')
       .notNull()
       .references(() => usersTable.id),
@@ -171,7 +173,10 @@ export const ratingsTable = pgTable(
     timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow()
   },
   (table) => ({
-    pk: primaryKey(table.userId, table.movieId),
+    uniqueUserIdMovieIdIdx: uniqueIndex('unique_idx_user_id_movie_id').on(
+      table.userId,
+      table.movieId
+    ),
     movieIdIdx: index('movie_id_idx').on(table.movieId)
   })
 );

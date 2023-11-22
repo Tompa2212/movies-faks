@@ -6,3 +6,12 @@ export interface MovieListDto
   genres: Genre[];
   rank: number;
 }
+
+export type MovieDto = Movie & {
+  genres: Genre[];
+  isBookmarked: boolean;
+  rating: {
+    id: number;
+    rating: number;
+  };
+};

@@ -44,7 +44,7 @@ async function register(req: Request, res: Response) {
 }
 
 async function logout(req: Request, res: Response) {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       throw err;
     }

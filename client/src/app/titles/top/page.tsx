@@ -1,23 +1,9 @@
 import Icon from '@/components/ui/Icons';
 import { getTop250Movies } from '@/data/movies/top-250';
+import { createDurationLabel } from '@/utils/create-duration-label';
 import { createVotesLabel } from '@/utils/create-votes-label';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const createDurationLabel = (duration: number | null) => {
-  if (!duration) {
-    return 0;
-  }
-
-  if (duration < 60) {
-    return `${duration}m`;
-  }
-
-  const hrs = Math.floor(duration / 60);
-  const mins = duration - hrs * 60;
-
-  return `${hrs}h ${mins}m`;
-};
 
 export default async function Top250() {
   const movies = await getTop250Movies();
@@ -31,11 +17,11 @@ export default async function Top250() {
         className="grid gap-7"
         style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))' }}
       >
-        {movies.map(movie => {
+        {movies.map((movie) => {
           return (
             <div
               key={movie.id}
-              className="flex flex-col overflow-hidden border rounded-lg  border-slate-300"
+              className="flex flex-col overflow-hidden border rounded-lg border-slate-300"
             >
               <div className="h-[300px]">
                 <Image
@@ -67,7 +53,7 @@ export default async function Top250() {
                 <h3 className="text-lg font-semibold">
                   <Link
                     className="hover:underline underline-offset-4"
-                    href={`/movies/${movie.id}`}
+                    href={`/titles/${movie.id}`}
                   >
                     {movie.rank}. {movie.title}
                   </Link>

@@ -1,6 +1,8 @@
 import { consumeInAppNotificationQueue } from '../config/messaging.config';
+import { getIo } from '../config/socket.config';
 import { notificationService } from '../services/notification.service';
 import { NewNotification } from '../types/Notification';
+import _ from 'lodash';
 
 const makeNotificationListener = () => {
   consumeInAppNotificationQueue(async (msg, acknowledge) => {
@@ -25,11 +27,16 @@ const makeNotificationListener = () => {
             };
           });
 
-          // throw new Error('aa');
-          const inserted = await notificationService.createNotifications(
+          const created = await notificationService.createNotifications(
             notifications
           );
-          // console.log('heree');
+
+          const notifys = [...new Set(created.map((row) => row.notifierId))];
+
+          notifys.forEach((n) =>
+            getIo().to(n.toString()).emit('new notification')
+          );
+
           acknowledge();
         } catch (error) {
           console.log(error);

@@ -1,3 +1,5 @@
+import { Genre } from './Genre';
+
 export type Movie = {
   type: 'movie' | 'series';
   id: number;

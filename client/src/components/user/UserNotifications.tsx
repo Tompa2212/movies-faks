@@ -1,5 +1,6 @@
+'use client';
 import Link from 'next/link';
-import { Button, buttonVariants } from '../ui/Button';
+import { buttonVariants } from '../ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +11,8 @@ import {
 } from '../ui/DropdownMenu';
 import Icon from '../ui/Icons';
 
-import { findNotificationyByUserId } from '@/data/user/notifications';
 import { cn } from '@/lib/utils';
+import { useUserNotifications } from '@/hooks/use-user-notifications';
 
 const timeAgoDelta = (dateStr: string) => {
   const date = new Date(dateStr).getTime();
@@ -33,15 +34,45 @@ const timeAgoDelta = (dateStr: string) => {
   return `${hrs}h ${remainingMin}m ago`;
 };
 
-const UserNotifications = async () => {
-  const { notifications, unreadCount } = (await findNotificationyByUserId(
-    5874
-  )) as any;
+const UserNotifications = ({ userId }: { userId: number }) => {
+  const { notifications, error, isLoading, markAllSeen, markNotificationSeen } =
+    useUserNotifications(userId);
+
+  if (error) {
+    return <Icon name="Bell" />;
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const notSeenCount = notifications.reduce(
+    (_: any, curr: any) => (curr.seen ? 0 : 1),
+    0
+  );
 
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      onOpenChange={() => {
+        if (!notSeenCount) {
+          return;
+        }
+
+        markAllSeen();
+      }}
+    >
       <DropdownMenuTrigger>
-        <Icon name="Bell" />
+        <div className="relative px-1">
+          <Icon name="Bell" />
+          {notSeenCount ? (
+            <span
+              className="absolute  -top-[2px] -right-[1px] inline-flex items-center justify-center h-4 min-w-[16px] text-xs bg-red-600 rounded-[22px] text-zinc-50"
+              aria-label="not seen notifications count"
+            >
+              {notSeenCount}
+            </span>
+          ) : null}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-[250px]">
         <DropdownMenuLabel className="flex items-center justify-between">
@@ -59,12 +90,11 @@ const UserNotifications = async () => {
         <DropdownMenuSeparator />
         {notifications?.length ? (
           <>
-            <DropdownMenuLabel>
-              <p>Notifications</p>
-              <Button variant="link">View All</Button>
-            </DropdownMenuLabel>
             {notifications.map((notification: any) => (
               <DropdownMenuItem
+                onSelect={() => {
+                  markNotificationSeen(notification.id);
+                }}
                 key={notification.id}
                 className="p-0 border-b-2 border-slate-100"
               >
@@ -74,7 +104,9 @@ const UserNotifications = async () => {
                   </h5>
                   <p className="mb-1">{notification.content}</p>
                   <div className="flex items-center justify-between">
-                    <p>{timeAgoDelta(notification.createdAt)}</p>
+                    <p className="text-sm">
+                      {timeAgoDelta(notification.creationDateTime)}
+                    </p>
                     {notification.status === 'unread' ? (
                       <>
                         <span className="flex-shrink-0 w-2 h-2 bg-blue-700 rounded-[50%]"></span>

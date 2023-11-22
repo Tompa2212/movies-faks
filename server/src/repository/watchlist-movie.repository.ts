@@ -13,7 +13,7 @@ function makeWatchlistMovieRepository() {
     }
   });
 
-  const addMovieToWatchlist = async (
+  const insertMovieWatchlist = async (
     watchlistId: number,
     movieId: number,
     userId: number
@@ -23,6 +23,7 @@ function makeWatchlistMovieRepository() {
     INSERT INTO 
     ${base.table} (watchlist_id, movie_id, added_by)
     VALUES ($1, $2, $3)
+    ON CONFLICT DO NOTHING
     RETURNING ${base.allColumns}
     `,
       [watchlistId, movieId, userId]
@@ -82,7 +83,7 @@ function makeWatchlistMovieRepository() {
   };
 
   return {
-    addMovieToWatchlist,
+    insertMovieWatchlist,
     removeMovieFromWatchlist,
     findWatchlistMovies,
     findWatchlistMovieAndWatchlistOwner

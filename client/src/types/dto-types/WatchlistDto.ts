@@ -18,8 +18,7 @@ export interface WathclistListItem {
 export interface Watchlist {
   id: number;
   title: string;
-  owner_id: number;
-  isOwner: boolean;
+  ownerId: number;
   movies: Pick<
     Movie,
     | 'id'

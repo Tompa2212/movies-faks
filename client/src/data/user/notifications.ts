@@ -1,9 +1,11 @@
-import 'server-only';
-import { pool } from '@/db';
+import api from '@/lib/axios-instance';
 
-export const findNotificationyByUserId = async (userId: number) => {
-  return {
-    notifications: [],
-    unreadCount: 0
-  };
+export const getUserNotifications = async (userId: number) => {
+  try {
+    const { data } = await api.get(`/users/${userId}/notifications`);
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };
