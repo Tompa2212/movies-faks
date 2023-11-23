@@ -46,10 +46,52 @@ const makeRatingRepository = () => {
     return res.rows[0] ?? null;
   };
 
+  const findByUserId = async (userId: number) => {
+    const res = await pool.query(
+      `
+      select 
+      r.id,
+      r.movie_id as "movieId",
+      r."timestamp",
+      r.rating as "userRating",
+      m.title,
+      m.plot,
+      m.full_plot as "fullPlot",
+      m.poster,
+      m.runtime,
+      genres.* as genres
+     from ratings r
+     join movies m
+       on r.movie_id = m.id
+     join lateral (
+       select
+         array_to_json(
+           array_agg(
+           json_build_object(
+            'id', g.id,
+            'name', g.name
+           )
+          )
+         ) as genres
+       from movie_genres mg
+       join genres g
+         on mg.genre_id = g.id
+       where mg.movie_id = m.id
+       group by mg.movie_id
+     ) genres on true
+     where user_id = $1;
+      `,
+      [userId]
+    );
+
+    return res.rows;
+  };
+
   return {
     ...base,
     insertRating,
-    updateRating
+    updateRating,
+    findByUserId
   };
 };
 

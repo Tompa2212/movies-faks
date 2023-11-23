@@ -11,14 +11,14 @@ const isOverflown = (element: HTMLElement) => {
 
 const scrollLeft = (element: HTMLElement) => {
   element.scrollBy({
-    left: -350,
+    left: -550,
     behavior: 'smooth'
   });
 };
 
 const scrollRight = (element: HTMLElement) => {
   element.scrollBy({
-    left: 450,
+    left: 550,
     behavior: 'smooth'
   });
 };

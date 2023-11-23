@@ -2,13 +2,13 @@ import NotFoundError from '../errors/not-found';
 import { ratingRepository } from '../repository/rating.repository';
 import { NewRating } from '../types/Rating';
 
-export const createRating = async (data: NewRating) => {
+const createRating = async (data: NewRating) => {
   const rating = await ratingRepository.insertRating(data);
 
   return rating;
 };
 
-export const deleteRating = async (id: number) => {
+const deleteRating = async (id: number) => {
   const rating = await ratingRepository.deleteById(id);
 
   if (!rating) {
@@ -18,7 +18,14 @@ export const deleteRating = async (id: number) => {
   return rating;
 };
 
+const getUserRatings = async (id: number) => {
+  const ratings = await ratingRepository.findByUserId(id);
+
+  return ratings;
+};
+
 export const ratingService = {
   createRating,
-  deleteRating
+  deleteRating,
+  getUserRatings
 };

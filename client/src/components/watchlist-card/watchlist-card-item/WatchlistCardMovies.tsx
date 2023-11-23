@@ -3,6 +3,7 @@ import React from 'react';
 import { WathclistListItem } from '@/types/dto-types/WatchlistDto';
 import { ScrollBar, ScrollArea } from '@/components/ui/ScrollArea';
 import WatchlistCardMovie from './WatchlistCardMovie';
+import WatchlistCardMoviesAddMovie from './WatchlistCardMoviesAddMovie';
 
 const WatchlistCardMovies = ({
   movies
@@ -21,6 +22,7 @@ const WatchlistCardMovies = ({
           ) : (
             <p>No movies</p>
           )}
+          <WatchlistCardMoviesAddMovie />
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>

@@ -28,6 +28,10 @@ export const deleteRating = async (req: Request, res: Response) => {
 
 export const getUserRatings = async (req: Request, res: Response) => {
   const userId = req.user.id;
+
+  const data = await ratingService.getUserRatings(userId);
+
+  return res.status(StatusCodes.OK).json({ data });
 };
 
 export const ratingController = {
