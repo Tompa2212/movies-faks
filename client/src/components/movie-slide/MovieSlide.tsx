@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { fallbackMovieImg } from '@/config/base-url.config';
 import Link from 'next/link';
+import MovieSlideWrapper from './MovieSlideWrapper';
 
 const MovieSlide = ({
   movies
@@ -11,8 +12,8 @@ const MovieSlide = ({
   movies: Pick<Movie, 'id' | 'title' | 'poster'>[];
 }) => {
   return (
-    <div className="max-w-[100%] overflow-scroll shadow">
-      <div className="flex gap-1">
+    <MovieSlideWrapper>
+      <div className="flex gap-1 ">
         {movies.length ? (
           movies.map((movie) => (
             <Link
@@ -33,8 +34,7 @@ const MovieSlide = ({
           <p>No movies</p>
         )}
       </div>
-      {/* <ScrollBar orientation="horizontal" /> */}
-    </div>
+    </MovieSlideWrapper>
   );
 };
 

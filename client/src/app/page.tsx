@@ -1,4 +1,4 @@
-import MovieSlide from '@/components/MovieSlide';
+import MovieSlide from '@/components/movie-slide/MovieSlide';
 import Icon from '@/components/ui/Icons';
 import { getFeaturedTitles } from '@/data/featured/get-featured-titles';
 import { getAuthSession } from '@/lib/get-session';

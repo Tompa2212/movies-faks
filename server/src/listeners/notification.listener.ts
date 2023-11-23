@@ -48,9 +48,8 @@ const makeNotificationListener = () => {
           acknowledge();
         } catch (error) {
           console.log(error);
-        } finally {
-          break;
         }
+        break;
       }
       case 'watchlist_invitation_accept': {
         try {
@@ -79,6 +78,7 @@ const makeNotificationListener = () => {
         } catch (error) {
           console.log(error);
         }
+        break;
       }
     }
   });
