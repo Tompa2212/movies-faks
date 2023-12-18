@@ -2,16 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Input } from '../ui/Input';
 import Icon from '../ui/Icons';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '@/hooks/use-api';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
-import { Movie } from '@/types/Movie';
 import { ScrollBar, ScrollArea } from '../ui/ScrollArea';
-import Image from 'next/image';
-import { fallbackMovieImg } from '@/config/base-url.config';
-import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
-import { getYearFromDate } from '@/utils/get-year-from-date';
+import { useMovieSearch } from './use-movie-search';
+import MovieSearchItem from './MovieSearchItem';
 
 const scrollIntoView = (el: Element) => {
   el.scrollIntoView({ block: 'nearest' });
@@ -21,35 +15,16 @@ const MovieSearch = () => {
   const [search, setSearch] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focusedItem, setFocusedItem] = useState<number | null>(null);
-  const router = useRouter();
 
+  const router = useRouter();
   const ulRef = useRef<HTMLUListElement>(null);
 
-  const api = useApi();
-  const debouncedValue = useDebouncedValue(search, 300);
-
-  const getMovies = async () => {
-    if (search) {
-      const { data } = await api.get(`/movies?title=${search}`);
-      return data;
-    }
-
-    return [];
-  };
-
-  const {
-    data: movies,
-    isFetched,
-    isFetching
-  } = useQuery<Movie[]>({
-    queryKey: ['movies-search', debouncedValue],
-    queryFn: async () => await getMovies(),
-    initialData: []
-  });
+  const { movies, isFetched, isFetching } = useMovieSearch(search);
 
   useEffect(() => {
     const onArrowNavigation = (e: KeyboardEvent) => {
       const key = e.key;
+
       if (!['ArrowDown', 'ArrowUp'].includes(key)) {
         return;
       }
@@ -139,34 +114,15 @@ const MovieSearch = () => {
                 ) : hasMovies ? (
                   movies.map((movie, idx) => {
                     return (
-                      <li
-                        className={clsx(
-                          'p-2 cursor-pointer hover:bg-zinc-100 focus-visible:bg-red-300',
-                          focusedItem === idx && 'bg-zinc-100'
-                        )}
-                        onMouseDown={() => {
-                          router.push(`/titles/${movie.id}`);
-                        }}
+                      <MovieSearchItem
+                        movie={movie}
                         key={movie.id}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Image
-                            src={movie.poster || fallbackMovieImg}
-                            alt={movie.title}
-                            className="object-cover w-11 h-11"
-                            width={80}
-                            height={40}
-                          />
-                          <div>
-                            <p>{movie.title}</p>
-                            {movie.released && (
-                              <small className="text-gray-400">
-                                {getYearFromDate(new Date(movie.released))}
-                              </small>
-                            )}
-                          </div>
-                        </div>
-                      </li>
+                        isFocused={focusedItem === idx}
+                        onSelect={() => {
+                          router.push(`/titles/${movie.id}`);
+                          setSearch('');
+                        }}
+                      />
                     );
                   })
                 ) : search ? (
