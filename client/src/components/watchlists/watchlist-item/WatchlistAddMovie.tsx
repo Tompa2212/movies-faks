@@ -1,6 +1,6 @@
 'use client';
 import AsyncSelectField from '@/components/ui/AsyncSelect';
-import { Button } from '@/components/ui/Button';
+import { Button, buttonVariants } from '@/components/ui/Button';
 import {
   Dialog,
   DialogContent,
@@ -11,16 +11,22 @@ import {
 } from '@/components/ui/Dialog';
 import Icon from '@/components/ui/Icons';
 import { Label } from '@/components/ui/Label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/Tooltip';
 import { useApi } from '@/hooks/use-api';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { useWatchlist } from '@/providers/WatchlistProvider';
 import { Movie } from '@/types/Movie';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-type WatchlistCardMoviesAddMovieProps = {};
+type WatchlistMoviesAddMovieProps = {};
 
-const WatchlistCardMoviesAddMovie = ({}: WatchlistCardMoviesAddMovieProps) => {
+const WatchlistAddMovie = ({}: WatchlistMoviesAddMovieProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { id } = useWatchlist();
   const [selectedMovie, setSelectedMovie] = useState<{
@@ -58,14 +64,16 @@ const WatchlistCardMoviesAddMovie = ({}: WatchlistCardMoviesAddMovieProps) => {
   return (
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="self-center w-auto h-auto m-2 max-h-16"
-          >
-            <Icon name="Plus" className="w-10 h-10" />
-          </Button>
-        </DialogTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              <Icon name="Plus" className="w-5 h-5" />
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Add Movie</TooltipContent>
+        </Tooltip>
         <DialogContent className="px-2 xs:p-6">
           <DialogHeader>
             <DialogTitle className="text-center">
@@ -102,4 +110,4 @@ const WatchlistCardMoviesAddMovie = ({}: WatchlistCardMoviesAddMovieProps) => {
   );
 };
 
-export default WatchlistCardMoviesAddMovie;
+export default WatchlistAddMovie;

@@ -3,8 +3,9 @@ import React from 'react';
 
 import { getAuthSession } from '@/lib/get-session';
 import WatchlistDeleteButton from './WatchlistDeleteButton';
+import WatchlistAddMovie from './WatchlistAddMovie';
 
-const WatchlistCardHeader = async ({
+const WatchlistHeader = async ({
   title,
   id,
   ownerId
@@ -27,9 +28,12 @@ const WatchlistCardHeader = async ({
           {title}
         </Link>
       </h3>
-      {canDelete ? <WatchlistDeleteButton /> : null}
+      <div className="flex items-center">
+        <WatchlistAddMovie />
+        {canDelete ? <WatchlistDeleteButton /> : null}
+      </div>
     </header>
   );
 };
 
-export default WatchlistCardHeader;
+export default WatchlistHeader;

@@ -2,7 +2,7 @@ import CreateWatchlistSheet from '@/components/CreateWatchlistSheet';
 import InviteToWatchlistSheet from '@/components/InviteToWatchlistSheet';
 import { Button } from '@/components/ui/Button';
 import Icon from '@/components/ui/Icons';
-import WatchlistCardList from '@/components/watchlist-card/WatchlistCardList';
+import WatchlistList from '@/components/watchlists/WatchlistList';
 import getUserWatchlists from '@/data/get-user-watchlists';
 import { getAuthSession } from '@/lib/get-session';
 import { redirect } from 'next/navigation';
@@ -49,7 +49,7 @@ const Page = async () => {
             </InviteToWatchlistSheet>
           </div>
         </aside>
-        <WatchlistCardList watchlists={watchlists} />
+        <WatchlistList watchlists={watchlists} />
       </section>
     </div>
   );

@@ -1,12 +1,12 @@
 import { WathclistListItem } from '@/types/dto-types/WatchlistDto';
 import React from 'react';
 
-import WatchlistCardUsers from './WatchlistCardUsers';
-import WatchlistCardMovies from './WatchlistCardMovies';
-import WatchlistCardHeader from './WatchlistCardHeader';
+import WatchlistUsers from './WatchlistUsers';
+import WatchlistMovies from './WatchlistMovies';
+import WatchlistHeader from './WatchlistHeader';
 import { WatchlistProvider } from '@/providers/WatchlistProvider';
 
-const WatchlistCard = ({
+const Watchlist = ({
   item: { id, title, movies, users, ownerId }
 }: {
   item: WathclistListItem;
@@ -14,14 +14,14 @@ const WatchlistCard = ({
   return (
     <WatchlistProvider watchlist={{ id, title, ownerId }}>
       <div className="max-w-4xl p-4 mb-4 border rounded-sm border-zinc-200">
-        <WatchlistCardHeader id={id} title={title} ownerId={ownerId} />
+        <WatchlistHeader id={id} title={title} ownerId={ownerId} />
         <div className="flex flex-wrap justify-between gap-4">
-          <WatchlistCardMovies movies={movies || []} />
-          <WatchlistCardUsers users={users} />
+          <WatchlistMovies movies={movies || []} />
+          <WatchlistUsers users={users} />
         </div>
       </div>
     </WatchlistProvider>
   );
 };
 
-export default WatchlistCard;
+export default Watchlist;

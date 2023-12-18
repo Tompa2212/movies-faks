@@ -7,7 +7,7 @@ import Icon from '@/components/ui/Icons';
 import WatchlistMovieDeleteButton from './WatchlistMovieDeleteButton';
 import Link from 'next/link';
 
-const WatchlistCardMovie = ({
+const WatchlistMovie = ({
   movie
 }: {
   movie: WathclistListItem['movies'][number];
@@ -49,4 +49,4 @@ const WatchlistCardMovie = ({
   );
 };
 
-export default WatchlistCardMovie;
+export default WatchlistMovie;

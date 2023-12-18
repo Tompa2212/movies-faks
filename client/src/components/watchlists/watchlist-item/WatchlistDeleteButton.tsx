@@ -47,7 +47,7 @@ const WatchlistDeleteButton = ({}) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button onClick={handleDelete} variant="ghost">
+        <Button onClick={handleDelete} variant="ghost" size="sm">
           <Icon className="w-5 h-5" name="Trash2" />
         </Button>
       </TooltipTrigger>
