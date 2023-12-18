@@ -7,6 +7,8 @@ import Icon from '@/components/ui/Icons';
 
 type Props = {};
 
+export const dynamic = 'force-dynamic';
+
 const page = async (props: Props) => {
   const ratings = await getUserRatings();
 

@@ -70,7 +70,7 @@ const MovieSlideWrapper = ({ children }: { children: React.ReactNode }) => {
     >
       <div
         className={clsx(
-          'absolute top-0 grid items-center w-12 h-full px-3 transition-opacity opacity-0 pointer-events-none bg-zinc-50/70',
+          'absolute top-0 grid items-center w-16 h-full px-3 transition-opacity opacity-0 pointer-events-none bg-zinc-50/70',
           canScrollSides[0] &&
             'group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto'
         )}

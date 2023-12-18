@@ -35,14 +35,8 @@ const timeAgoDelta = (dateStr: string) => {
 };
 
 const UserNotifications = ({ userId }: { userId: number }) => {
-  const {
-    notifications,
-    error,
-    isLoading,
-    markAllSeen,
-    markNotificationRead,
-    onSelectAction
-  } = useUserNotifications(userId);
+  const { notifications, error, isLoading, markAllSeen, onSelectAction } =
+    useUserNotifications(userId);
 
   if (error) {
     return <Icon name="Bell" />;

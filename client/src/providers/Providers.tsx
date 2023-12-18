@@ -4,6 +4,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SocketProvider } from './SocketProvider';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+import { ConfirmDialogProvider } from '@/components/confirm-dialog/ConfirmDialogProvider';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
@@ -12,7 +13,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
       <SocketProvider>
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+        </TooltipProvider>
       </SocketProvider>
     </QueryClientProvider>
   );

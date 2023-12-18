@@ -61,8 +61,9 @@ const BookmarkedToggleAction = ({
   if (actionType === 'delete') {
     selectableWatchlists = watchlists.filter(
       (watchlist) =>
-        (watchlist.movies || []).findIndex((movie) => movie.id === movieId) !==
-        -1
+        (watchlist.movies || []).findIndex(
+          (movie) => movie.id === movieId && movie.addedBy === session?.user.id
+        ) !== -1
     );
   }
 

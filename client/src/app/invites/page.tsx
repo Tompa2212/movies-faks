@@ -1,9 +1,10 @@
-import { Button } from '@/components/ui/Button';
 import WatchlistInvActions from '@/components/watchlist-inv-actions/WatchlistInvActions';
 import { getUserInvites } from '@/data/user/invites';
 import { getAuthSession } from '@/lib/get-session';
 import { redirect } from 'next/navigation';
 import React from 'react';
+
+export const dynamic = 'force-dynamic';
 
 const page = async () => {
   const session = await getAuthSession();

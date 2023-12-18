@@ -36,3 +36,9 @@ export const useSession = () => {
 
   return ctx;
 };
+
+export const useAuthUser = () => {
+  const [session] = useSession();
+
+  return session?.user ?? null;
+};

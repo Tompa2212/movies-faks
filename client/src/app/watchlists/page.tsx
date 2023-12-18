@@ -5,11 +5,19 @@ import Icon from '@/components/ui/Icons';
 import WatchlistCardList from '@/components/watchlist-card/WatchlistCardList';
 import getUserWatchlists from '@/data/get-user-watchlists';
 import { getAuthSession } from '@/lib/get-session';
+import { redirect } from 'next/navigation';
 import React from 'react';
+
+export const dynamic = 'force-dynamic';
 
 const Page = async () => {
   const session = await getAuthSession();
-  const watchlists = await getUserWatchlists(session?.user.id!);
+
+  if (!session?.user) {
+    redirect('/sign-in');
+  }
+
+  const watchlists = await getUserWatchlists(session.user.id);
 
   return (
     <div>

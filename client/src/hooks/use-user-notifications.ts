@@ -13,13 +13,13 @@ export const useUserNotifications = (userId: number) => {
   const queryClient = useQueryClient();
 
   const { data, error, isLoading, refetch } = useQuery<any>({
-    queryKey: ['notifications'],
-    queryFn: () => getUserNotifications(userId),
+    queryKey: ['notifications', userId],
+    queryFn: () => getUserNotifications(),
     initialData: []
   });
 
   const { mutate: markAllSeen } = useMutation({
-    mutationFn: () => api.post(`/users/${userId}/notifications/seen`),
+    mutationFn: () => api.post(`/notifications/seen`),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
 

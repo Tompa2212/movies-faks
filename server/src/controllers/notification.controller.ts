@@ -12,6 +12,22 @@ const markNotificationRead = async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json({ data: notification });
 };
 
+const getUserNotifications = async (req: Request, res: Response) => {
+  const notifications = await notificationService.getUserNotifications(
+    req.session.user.id
+  );
+
+  return res.status(StatusCodes.OK).json({ data: notifications });
+};
+
+const markAllUserNotificationsSeen = async (req: Request, res: Response) => {
+  await notificationService.markUsersNotificationsSeen(req.session.user.id);
+
+  return res.status(StatusCodes.OK).end();
+};
+
 export const notificationController = {
-  markNotificationRead
+  markNotificationRead,
+  getUserNotifications,
+  markAllUserNotificationsSeen
 };
