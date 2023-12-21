@@ -34,7 +34,9 @@ const page = async () => {
             </div>
           ))
         ) : (
-          <h3>No pending invites...</h3>
+          <h3 className="text-lg font-semibold">
+            You do not have pending invites...
+          </h3>
         )}
       </div>
     </section>

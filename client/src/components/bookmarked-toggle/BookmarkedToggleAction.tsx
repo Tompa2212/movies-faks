@@ -19,6 +19,7 @@ import { SelectValue } from '../ui/Select';
 import SelectField from '../ui/SelectField';
 import { AxiosError } from 'axios';
 import { useSession } from '@/providers/SessionProvider';
+import { useIsOnline } from '@/hooks/use-is-online';
 
 type Props = {
   children: React.ReactNode;
@@ -50,6 +51,9 @@ const BookmarkedToggleAction = ({
   const api = useApi();
   const router = useRouter();
   const [session] = useSession();
+  const isOnline = useIsOnline();
+
+  console.log('isOnline', isOnline);
 
   const actionType = isBookmarked ? 'delete' : 'add';
 

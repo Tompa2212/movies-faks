@@ -4,12 +4,11 @@ import Image from 'next/image';
 import { fallbackMovieImg } from '@/config/base-url.config';
 import { createDurationLabel } from '@/utils/create-duration-label';
 import Icon from '@/components/ui/Icons';
-
-type Props = {};
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-const page = async (props: Props) => {
+const page = async () => {
   const ratings = await getUserRatings();
 
   return (
@@ -22,20 +21,25 @@ const page = async (props: Props) => {
           return (
             <div key={rating.id} className="flex gap-4 mb-8">
               <div className="flex-shrink-0 overflow-hidden rounded">
-                <Image
-                  src={rating.poster || fallbackMovieImg}
-                  alt={rating.title}
-                  width={150}
-                  height={100}
-                />
+                <Link href={`/titles/${rating.movieId}`}>
+                  <Image
+                    src={rating.poster || fallbackMovieImg}
+                    alt={rating.title}
+                    width={150}
+                    height={100}
+                  />
+                </Link>
               </div>
               <div>
                 <div className="flex flex-col gap-2 mb-2">
-                  <h3 className="text-lg">
-                    <span className="text-gray-400">{idx + 1}.</span>{' '}
+                  <Link
+                    className="text-lg hover:underline underline-offset-2"
+                    href={`/titles/${rating.movieId}`}
+                  >
+                    <span className="text-gray-500">{idx + 1}.</span>{' '}
                     {rating.title}
-                  </h3>
-                  <p className="text-sm text-gray-400">
+                  </Link>
+                  <p className="text-sm text-gray-500">
                     {createDurationLabel(rating.runtime)}
                     {' | '}
                     <span>
@@ -44,13 +48,13 @@ const page = async (props: Props) => {
                   </p>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <span>{rating.userRating}</span>{' '}
                       <Icon
                         className="w-5 h-5 stroke-blue-400 fill-blue-400"
                         name="Star"
                       />
+                      <span>{rating.userRating}</span>{' '}
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-500">
                       Rated on{' '}
                       <span>
                         {new Date(rating.timestamp).toLocaleDateString()}
