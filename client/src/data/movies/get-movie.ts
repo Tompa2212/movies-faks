@@ -1,8 +1,9 @@
 import api from '@/lib/create-fetcher';
 import { MovieDto } from '@/types/dto-types/MovieDto';
 import { AxiosError } from 'axios';
+import { cache } from 'react';
 
-export const getMovie = async (id: string) => {
+export const getMovie = cache(async (id: string) => {
   try {
     const { data: movie } = await api.get(`/movies/${id}`);
 
@@ -14,4 +15,4 @@ export const getMovie = async (id: string) => {
 
     throw new Error('Movie not found.');
   }
-};
+});
