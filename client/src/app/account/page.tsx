@@ -1,5 +1,4 @@
-import { getAuthSession } from '@/lib/auth';
-
+import { getAuthSession } from '@/lib/get-session';
 import React from 'react';
 
 async function Page() {
